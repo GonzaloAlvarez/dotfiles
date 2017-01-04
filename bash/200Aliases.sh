@@ -12,4 +12,6 @@ alias ssh='ssh -o UserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no -oChec
 
 # Git aliases
 alias glog="git log --graph --pretty=format:'%Cred%h%Creset %an: %s - %Creset %C(yellow)%d%Creset %Cgreen(%cr)%Creset' --abbrev-commit --date=relative"
-
+if [ -f "$HOME/.vim.vimrc" ]; then
+    alias vi='/usr/bin/vim -u $HOME/.vim/vimrc'
+fi

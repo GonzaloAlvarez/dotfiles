@@ -20,6 +20,10 @@ PS1="\[\e[1;32m\]\$(__git_ps1)[\u@$HOST_CNAME \W]\$\[\e[0m\] "
 umask 022
 
 
+# Set vim mode for shell
+set -o vi
+
+
 # Less related exports
 export LESS="-RSi"
 export LESS_TERMCAP_so="$(printf 'rev\nbold\nsetaf 3\n' | tput -S)"

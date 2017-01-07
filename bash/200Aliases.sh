@@ -15,3 +15,7 @@ alias glog="git log --graph --pretty=format:'%Cred%h%Creset %an: %s - %Creset %C
 if [ -f "$HOME/.vim.vimrc" ]; then
     alias vi='/usr/bin/vim -u $HOME/.vim/vimrc'
 fi
+
+alias tmux='TERM=xterm-256color tmux'
+alias tmx='tmux attach-session -t main || tmux new-session -s main'
+

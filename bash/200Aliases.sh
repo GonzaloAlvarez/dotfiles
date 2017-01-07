@@ -16,6 +16,6 @@ if [ -f "$HOME/.vim.vimrc" ]; then
     alias vi='/usr/bin/vim -u $HOME/.vim/vimrc'
 fi
 
-alias tmux='( [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ] && [ -z "$TMUX" ] ) && TERM=xterm-256color tmux'
+alias tmux='TERM=xterm-256color tmux'
 alias tmx='tmux attach-session -t main || tmux new-session -s main'
 

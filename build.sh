@@ -4,6 +4,7 @@ SELF_PATH="$(cd "$(dirname "$0")" && pwd)"
 TARGET_BASHRC="$HOME/.bashrc"
 HOSTNAME_FILE="$HOME/.hostname"
 TMUX_CONF="$HOME/.tmux.conf"
+ZSHENV_FILE="$HOME/.zshenv"
 
 function _die {
     echo "$@" >&2
@@ -32,3 +33,4 @@ fi
 
 _build_bash
 cp -v "$SELF_PATH/tmux/tmux.conf" "$TMUX_CONF"
+cp -v "$SELF_PATH/zsh/zshenv" "$ZSHENV_FILE"

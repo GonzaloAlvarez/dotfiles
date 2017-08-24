@@ -1,36 +1,28 @@
 #!/bin/bash 
 
 SELF_PATH="$(cd "$(dirname "$0")" && pwd)"
-TARGET_BASHRC="$HOME/.bashrc"
-HOSTNAME_FILE="$HOME/.hostname"
-TMUX_CONF="$HOME/.tmux.conf"
-ZSHENV_FILE="$HOME/.zshenv"
 
-function _die {
-    echo "$@" >&2
-    exit 1
+function _build_paths() {
+    for toplevel in $SELF_PATH/*; do
+        if [ -d "$toplevel" ]; then
+            toplevel_basename=$(basename $toplevel)
+            echo "using $toplevel_basename"
+            INCLUDE_FILES="$(find $SELF_PATH/$toplevel_basename -type f)"
+            for extra_path in $@; do
+                if [ -d "$extra_path/$toplevel_basename" ]; then
+                    INCLUDE_FILES="$(echo $INCLUDE_FILES; find $extra_path/$toplevel_basename -type f)"
+                fi
+            done
+            SORTED_FILES=$(for i in $INCLUDE_FILES; do echo $(basename $i) $i; done | sort | cut -d ' ' -f 2-)
+            rm -Rf $HOME/$toplevel_basename
+            :> $HOME/.$toplevel_basename
+            for file in $SORTED_FILES; do
+                echo "Adding functions file [$(basename $file)] to [$HOME/.$toplevel_basename]"
+                cat $file >> $HOME/.$toplevel_basename
+            done
+        fi
+    done
 }
 
-function _build_bash {
-    echo "Building bash environment"
-    echo -e "#!/bin/bash\n" > $TARGET_BASHRC
-    for i in $SELF_PATH/bash/functions/*.sh; do
-        echo "Adding functions file [$(basename $i)]"
-        cat $i >> $TARGET_BASHRC
-        echo "" >> $TARGET_BASHRC
-    done
-    for i in $SELF_PATH/bash/*.sh; do
-        echo "Adding source file [$(basename $i)]"
-        cat $i >> $TARGET_BASHRC
-        echo "" >> $TARGET_BASHRC
-    done
-    echo "Finished building bash environment"
-}
+_build_paths $@
 
-if [ "$1" ]; then
-    echo "$1" > $HOSTNAME_FILE
-fi
-
-_build_bash
-cp -v "$SELF_PATH/tmux/tmux.conf" "$TMUX_CONF"
-cp -v "$SELF_PATH/zsh/zshenv" "$ZSHENV_FILE"

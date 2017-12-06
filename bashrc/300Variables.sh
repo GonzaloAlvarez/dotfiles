@@ -8,7 +8,7 @@ function is_osx() {
 if [ -f $HOME/.hostname ]; then
     HOST_CNAME="$(head -n 1 $HOME/.hostname)"
 else
-    HOST_CNAME="localhost"
+    HOST_CNAME="\h"
 fi
 
 PS1="\[\e[1;32m\]\$(__git_ps1)[\u@$HOST_CNAME \W]\$\[\e[0m\] "

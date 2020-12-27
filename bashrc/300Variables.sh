@@ -13,6 +13,10 @@ fi
 
 PS1="\[\e[1;32m\]\$(__git_ps1)[\u@$HOST_CNAME \W]\$\[\e[0m\] "
 
+# Modify PATH to include local bin if it exists
+if [ -d $HOME/.local/bin ]; then
+    export PATH="$PATH:$HOME/.local/bin"
+fi
 
 # Files will be created with these permissions:
 # files 644 -rw-r--r-- (666 minus 022)

@@ -26,5 +26,7 @@ set -o vi
 
 # Less related exports
 export LESS="-RSi"
-export LESS_TERMCAP_so="$(printf 'rev\nbold\nsetaf 3\n' | tput -S)"
-export LESS_TERMCAP_se="$(tput sgr0)"
+if [[ $- == *i* ]]; then
+    export LESS_TERMCAP_so="$(printf 'rev\nbold\nsetaf 3\n' | tput -S)"
+    export LESS_TERMCAP_se="$(tput sgr0)"
+fi

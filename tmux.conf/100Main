@@ -24,7 +24,7 @@ set-window-option -g window-status-current-format '#[fg=colour240]❮#[fg=defaul
 set-option -g status-right '#[fg=colour240]| %a %b %d %H:%M'
 set-option -g status-bg colour234
 set-option -g status-fg colour007
-set-window-option -g window-status-current-fg colour23
+set-window-option -g window-status-current-style fg=colour23
 
 # attempt to set the window title
 set-option -g set-titles on

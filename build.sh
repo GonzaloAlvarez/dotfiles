@@ -25,7 +25,3 @@ function _build_paths() {
 }
 
 _build_paths $@
-
-if [ "$(uname)" == "Darwin" ]; then
-    ln -s ~/.bashrc ~/.bash_profile
-fi

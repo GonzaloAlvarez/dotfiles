@@ -27,6 +27,11 @@ umask 022
 # Set vim mode for shell
 set -o vi
 
+# Make less not paginate if less than one page
+export LESS="-F -X $LESS"
+
+# Tell Git to use less without pagination
+export GIT_PAGER="less -F -X"
 
 # Less related exports
 export LESS="-RSi"

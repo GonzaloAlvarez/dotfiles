@@ -1,0 +1,61 @@
+" IDEA VIM Configuration
+" Gonzalo Alvarez
+
+"source ~/.vimrc
+
+set ignorecase
+set smartcase
+set scrolloff=3
+
+" Do incremental searching.
+set incsearch
+
+" show line numbers
+set nu
+" show relative line numbers
+set rnu
+
+" Emulate Plugins
+set surround
+set NERDTree
+set commentary
+set surround
+set ideamarks
+
+" Use system clipboard
+set clipboard+=unnamed
+
+" Change leader key to comma
+let mapleader=","
+
+" Enable NERDTree
+nmap <leader>t :NERDTreeToggle<cr>
+
+" Hide all windows
+nmap <leader>f <Action>(HideAllWindows)
+
+" Switch to terminal
+nmap <leader>x <Action>(ActivateTerminalToolWindow)
+
+" Source Code management
+nmap <leader>o <Action>(OptimizeImports)
+nmap <leader>R <Action>(Refactorings.QuickListPopupAction)
+
+" Navigation
+nmap <silent> <leader><tab> <Action>(NextTab)
+nmap <silent> <leader><s-tab> <Action>(PreviousTab)
+nmap <silent> <leader>a <Action>(ShowIntentionActions)
+nmap <silent> <Leader>A <Action>(AnalyzeActionsPopup)
+nmap <silent> <leader>x <action>(QuickListPopupAction)
+
+" Runtime Management
+nmap <silent> <leader>b <Action>(ToggleLineBreakpoint)
+
+" File Management
+nmap <silent> <leader>q <Action>(CloseContent)
+
+"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+" https://github.com/JetBrains/ideavim/wiki/
+" https://gist.github.com/zchee/9c78f91cc5ad771c1f5d
+" https://towardsdatascience.com/the-essential-ideavim-remaps-291d4cd3971b
+

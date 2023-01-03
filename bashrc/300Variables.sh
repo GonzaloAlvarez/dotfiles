@@ -18,6 +18,18 @@ if [ -d $HOME/.local/bin ]; then
     export PATH="$PATH:$HOME/.local/bin"
 fi
 
+if [ -d /opt/homebrew/bin ]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+fi
+
+if [ -d ~/.toolbox/bin ]; then
+    export PATH="$HOME/.toolbox/bin:$PATH" 
+fi
+
+if [ -d $HOME/bin ]; then
+    export PATH="$HOME/bin:$PATH"
+fi
+
 # Files will be created with these permissions:
 # files 644 -rw-r--r-- (666 minus 022)
 # dirs  755 drwxr-xr-x (777 minus 022)

@@ -1,7 +1,11 @@
 {
     "workbench.colorTheme": "Default Dark Modern",
     "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorCustomizations": {
+        "editor.background": "#000000"
+    },
     "editor.fontFamily": "Source Code Pro, Menlo, Monaco, 'Courier New', monospace",
+    "editor.renderLineHighlight": "none",
     "editor.lineNumbers": "on",
     "editor.tabSize": 4,
     "editor.cursorBlinking": "solid",
@@ -45,6 +49,15 @@
             ],
             "commands": [
                 "workbench.action.terminal.focus"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "t"
+            ],
+            "commands": [
+                "workbench.action.toggleSidebarVisibility"
             ]
         },
         {

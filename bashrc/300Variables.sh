@@ -51,3 +51,6 @@ if [[ $- == *i* ]]; then
     export LESS_TERMCAP_so="$(printf 'rev\nbold\nsetaf 3\n' | tput -S)"
     export LESS_TERMCAP_se="$(tput sgr0)"
 fi
+
+# If you invoke the bash shell while macOS is configured to use a different shell, you'll see a message that the default interactive shell is now zsh. To silence this warning:
+export BASH_SILENCE_DEPRECATION_WARNING=1

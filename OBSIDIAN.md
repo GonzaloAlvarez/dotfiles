@@ -22,6 +22,10 @@ Settings -> Editor -> __disable__ Ident Using Tabs (I will die on this hill)
 
 Settings -> Community Plugins -> Turn On
 
+**Change location for new attachments**
+
+Settings -> Files and links -> Default Location for new attachments: extras/attachments
+
 ### Plugins
 
 Plugins and their configurations

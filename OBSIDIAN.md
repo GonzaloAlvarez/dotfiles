@@ -14,10 +14,6 @@ Let's go with the actual steps
 
 Settings -> Editor -> (scroll down) VIM Bindings
 
-**Show Line Numbers**
-
-Settings -> Editor -> Show Line numbers
-
 **Disable Ident Using Tabs**
 
 Settings -> Editor -> __disable__ Ident Using Tabs (I will die on this hill)
@@ -59,6 +55,7 @@ In Settings -> Daily Notes, change:
 - Date Format to: YYYY-MM/MMDDYY-dddd
 - New File Location to: home/daily
 - Template File Location: extras/templates/[TEMPLATE] Daily Notes
+- Template File Location: extras/templates/[TEMPLATE] Workout
 
 
 **Tasks**
@@ -76,8 +73,6 @@ In Settings -> Git, change:
 - Auto commit-and-sync interval: 10
 - Auto pull interval: 30
 - Specify custom commit message: Updated notes on {{date}} with changed files {{files}}
-- Pull: merge strategy: merge
-- Pull on startup: enable
 - Disable notifications: enabled
 - Commit author name: Gonzalo Alvarez
 - Commit author email: gonzaloab@gmail.com

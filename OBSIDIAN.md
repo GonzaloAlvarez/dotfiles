@@ -10,6 +10,10 @@ Let's go with the actual steps
 
 ### General stuff
 
+**Theme**
+
+Settings -> Appearance -> Themes -> 'Vanilla Amoled'
+
 **VIM Bindings**
 
 Settings -> Editor -> (scroll down) VIM Bindings

@@ -2,8 +2,30 @@
 -- Custom commands for VSCode
 -- reload with :source $MYVIMRC
 
+-- Loading lazy.vim before mapleader
+-- Bootstrap lazy.nvim
+if not vim.g.vscode then
+    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+    if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({
+        { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+        { out, "WarningMsg" },
+        { "\nPress any key to exit..." },
+        }, true, {})
+        vim.fn.getchar()
+        os.exit(1)
+    end
+    end
+    vim.opt.rtp:prepend(lazypath)
+end
+
+
 -- Let's start with the leader
 vim.g.mapleader = ","
+vim.g.maplocalleader = ","
 
 -- ** COMMON OPTIONS **
 -- Tab Options
@@ -20,6 +42,7 @@ vim.opt.incsearch = true            -- Incremental search
 vim.opt.hlsearch = true             -- Highlight search results
 vim.opt.smartcase = true            -- Search is case-sensitive only if search contains upper case
 vim.opt.number = true               -- Show line numbers
+vim.opt.relativenumber = true       -- Show relative numbers
 vim.opt.showcmd = true              -- Display commands in the statusline
 vim.opt.ruler = true                -- Show current line number in statusline
 vim.opt.ttyfast = true              -- It's ok vim, our terminal is fast
@@ -66,4 +89,138 @@ if vim.g.vscode then
     vim.keymap.set('n', '<leader>x', '<Cmd>call VSCodeNotify("workbench.action.terminal.toggleTerminal")<CR>', {noremap = true})
     vim.keymap.set('n', '<leader>pc', '<Cmd>call VSCodeNotify("workbench.view.scm")<CR>', {noremap = true})
     vim.keymap.set('n', '<leader>pr', '<Cmd>call VSCodeNotify("workbench.view.extension.github-pull-requests")<CR>', {noremap = true})
+else
+    -- Setup lazy.nvim
+    require("lazy").setup({
+    spec = {
+        { 'dasupradyumna/midnight.nvim', lazy = false, priority = 1000 },
+        {'akinsho/bufferline.nvim', version = "*"},
+        {'nvim-telescope/telescope.nvim', tag = '0.1.8', dependencies = { 'nvim-lua/plenary.nvim' }},
+        "lewis6991/gitsigns.nvim",
+        "nvim-lualine/lualine.nvim",
+        { "nvim-tree/nvim-tree.lua", version = "*", lazy = false},
+    },
+    -- colorscheme that will be used when installing plugins.
+    install = { colorscheme = { "habamax" } },
+    -- automatically check for plugin updates
+    checker = { enabled = false },
+    })
+
+    -- nvim tree configuration
+    require("nvim-tree").setup({
+        sort_by = "case_sensitive",
+        hijack_cursor = true,
+        update_focused_file = {
+            update_root = true,
+        },
+        view = {
+            signcolumn = "auto",
+        },
+        actions = {
+            open_file = {
+                quit_on_open = true,
+            },
+        },
+        renderer = {
+            group_empty = true,
+            icons = {
+                show = {
+                    file = false,
+                    folder = false,
+                },
+                glyphs = {
+                    bookmark = "🔖",
+                    folder = {
+                        arrow_closed = "⏵",
+                        arrow_open = "⏷",
+                    },
+                    symlink = "",
+                    git = {
+                        unstaged = "✗",
+                        staged = "✓",
+                        unmerged = "⌥",
+                        renamed = "➜",
+                        untracked = "☆",
+                        deleted = "⊖",
+                        ignored = "◌",
+                    },
+                },
+            },
+        },
+        filters = {
+            dotfiles = true,
+        },
+    })
+
+    -- Set statusbar
+    require('lualine').setup({
+        options = {
+            icons_enabled = false,
+            theme = 'onedark',
+            component_separators = '|',
+            section_separators = '',
+        },
+    })
+
+    -- Bufferline
+    require("bufferline").setup{
+        options = {
+            indicator = { style = "icon", icon = "▎"},
+            modified_icon = "●",
+            show_close_icon = false,
+            show_buffer_close_icons = false,
+            always_show_bufferline = false,
+            show_tab_indicators = true,
+        },
+        highlights = {
+            fill = {
+                fg = { attribute = "fg", highlight = "Visual" },
+                bg = { attribute = "bg", highlight = "TabLine" },
+            },
+            background = {
+                fg = { attribute = "fg", highlight = "TabLine" },
+                bg = { attribute = "bg", highlight = "TabLine" },
+            },
+            modified = {
+                fg = { attribute = "fg", highlight = "TabLine" },
+                bg = { attribute = "bg", highlight = "TabLine" },
+            },
+            modified_selected = {
+                fg = { attribute = "fg", highlight = "Normal" },
+                bg = { attribute = "bg", highlight = "Normal" },
+            },
+            modified_visible = {
+                fg = { attribute = "fg", highlight = "TabLine" },
+                bg = { attribute = "bg", highlight = "TabLine" },
+            },
+            indicator_selected = {
+                fg = { attribute = "fg", highlight = "LspDiagnosticsDefaultHint" },
+                bg = { attribute = "bg", highlight = "Normal" },
+            },
+        },
+    }
+
+    local function open_nvim_tree()
+        require("nvim-tree.api").tree.open()
+    end
+    vim.keymap.set('n', '<leader>t', ':NvimTreeToggle<CR>', {noremap = true})
+
+    vim.cmd([[colorscheme midnight]])
+
+    -- keybindings conflicting with vscode
+    vim.keymap.set('n', 'J', '<PageDown>')
+    vim.keymap.set('n', 'K', '<PageUp>')
+
+    -- Buffer navigation keybindings
+    vim.keymap.set('n', '<leader><Tab>', ':bnext<CR>')
+    vim.keymap.set('n', '<leader><S-Tab>', ':bprevious<CR>')
+    vim.keymap.set('n', '<leader>q', ':bd<CR>')
+    vim.keymap.set('n', '<leader>Q', ':%bd|e#|bd#<CR>')
+
+    -- Telescope
+    local builtin = require('telescope.builtin')
+    vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
+    vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
+    vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
+    vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
 end

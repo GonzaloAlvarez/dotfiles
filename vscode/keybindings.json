@@ -1,80 +1,84 @@
 [
-    {
-        "key": "cmd+m",
-        "command": "workbench.action.showCommands"
-    },
-    {
-        "key": "shift+cmd+p",
-        "command": "-workbench.action.showCommands"
-    },
-    {
-        "key": "J",
-        "command": "-cursorMove",
-        "when": "editorTextFocus && vim.active && vim.mode == 'Normal'",
-        "args": {
+  {
+    "key": "cmd+m",
+    "command": "workbench.action.showCommands"
+  },
+  {
+    "key": "shift+cmd+p",
+    "command": "-workbench.action.showCommands"
+  },
+  {
+    "key": "J",
+    "command": "-cursorMove",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Normal'",
+    "args": {
+      "to": "down",
+      "by": "line"
+    }
+  },
+  {
+    "key": "shift+k",
+    "command": "runCommands",
+    "when": "editorTextFocus && neovim.ctrlKeysNormal.u && neovim.init && neovim.mode != 'insert' && editorLangId not in 'neovim.editorLangIdExclusions'",
+    "args": {
+      "commands": [
+        {
+          "command": "editorScroll",
+          "args": {
+            "to": "up",
+            "by": "line",
+            "value": 20
+          }
+        },
+        {
+          "command": "cursorMove",
+          "args": {
+            "to": "up",
+            "by": "line",
+            "value": 20
+          }
+        }
+      ]
+    }
+  },
+  {
+    "key": "shift+j",
+    "command": "runCommands",
+    "when": "editorTextFocus && neovim.ctrlKeysNormal.u && neovim.init && neovim.mode != 'insert' && editorLangId not in 'neovim.editorLangIdExclusions'",
+    "args": {
+      "commands": [
+        {
+          "command": "editorScroll",
+          "args": {
             "to": "down",
-            "by": "line"
+            "by": "line",
+            "value": 20
+          }
+        },
+        {
+          "command": "cursorMove",
+          "args": {
+            "to": "down",
+            "by": "line",
+            "value": 20
+          }
         }
-    },
-    {
-        "key": "shift+k",
-        "command": "runCommands",
-        "when": "editorTextFocus && neovim.ctrlKeysNormal.u && neovim.init && neovim.mode != 'insert' && editorLangId not in 'neovim.editorLangIdExclusions'",
-        "args": {
-          "commands": [
-            {
-              "command": "editorScroll",
-              "args": {
-                "to": "up",
-                "by": "line",
-                "value": 20
-              }
-            },
-            {
-              "command": "cursorMove",
-              "args": {
-                "to": "up",
-                "by": "line",
-                "value": 20
-              }
-            }
-          ]
-        }
-      },
-      {
-        "key": "shift+j",
-        "command": "runCommands",
-        "when": "editorTextFocus && neovim.ctrlKeysNormal.u && neovim.init && neovim.mode != 'insert' && editorLangId not in 'neovim.editorLangIdExclusions'",
-        "args": {
-          "commands": [
-            {
-              "command": "editorScroll",
-              "args": {
-                "to": "down",
-                "by": "line",
-                "value": 20
-              }
-            },
-            {
-              "command": "cursorMove",
-              "args": {
-                "to": "down",
-                "by": "line",
-                "value": 20
-              }
-            }
-          ]
-        }
-      },
-      {
-        "key": "cmd+b",
-        "command": "workbench.action.focusActiveEditorGroup",
-        "when": "terminalFocus"
-      },
-      {
-        "key": "cmd+q",
-        "command": "workbench.action.terminal.toggleTerminal",
-        "when": "terminalFocus"
-      }  
-
+      ]
+    }
+  },
+  {
+    "key": "cmd+b",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "cmd+x",
+    "command": "workbench.action.terminal.toggleTerminal",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "cmd+x",
+    "command": "workbench.action.closeSidebar",
+    "when": "explorerViewletVisible"
+  },
 ]

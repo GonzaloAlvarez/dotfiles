@@ -1,0 +1,16 @@
+.obsidian/*
+!.obsidian/app.json
+!.obsidian/appearance.json
+!.obsidian/config
+!.obsidian/community-plugins.json
+!.obsidian/core-plugins.json
+!.obsidian/graph.json
+!.obsidian/hotkeys.json
+.obsidian.mobile/*
+!.obsidian.mobile/app.json
+!.obsidian.mobile/appearance.json
+!.obsidian.mobile/config
+!.obsidian.mobile/community-plugins.json
+!.obsidian.mobile/core-plugins.json
+!.obsidian.mobile/graph.json
+!.obsidian.mobile/hotkeys.json

@@ -9,7 +9,7 @@ echo >&2 "Please install python"
 exit 1
 ':'''
 
-import os, sys, subprocess, socket
+import os, sys, subprocess, socket, shutil
 try:
     from urllib.request import urlretrieve
 except ImportError:
@@ -36,7 +36,12 @@ with open('config.json', 'r') as configfile:
     configs = json.load(configfile)
     for config in configs['configs']:
         if not 'mode' in config or config['mode'] == 'copy':
-            print(f"copy {config['source']} to {config['dest']}")
+            source_path = os.path.expanduser(config['source'])
+            dest_path = os.path.expanduser(config['dest'])
+            print(f"copy {source_path} to {dest_path}")
+            # Create destination directory if it doesn't exist
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            shutil.copy2(source_path, dest_path)
         elif config['mode'] == 'combine':
             print(f"Combining files in folder {config['source']} to {config['dest']}")
             with open(os.path.expanduser(config['dest']), 'w') as output:

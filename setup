@@ -1,0 +1,52 @@
+#!/bin/sh
+''':'
+# vim: set filetype=python :
+for name in python3 python2 python
+do
+    type "$name" > /dev/null 2>&1 && exec "$name" "$0" "$@"
+done
+echo >&2 "Please install python"
+exit 1
+':'''
+
+import os, sys, subprocess, socket
+try:
+    from urllib.request import urlretrieve
+except ImportError:
+    from urllib import urlretrieve # noqa # type:ignore
+
+in_venv = (hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
+try:
+    socket.create_connection(("8.8.8.8", 53), 2)
+    is_online = True
+except:
+    is_online = False
+if is_online and not in_venv:
+    urlretrieve("https://bootstrap.pypa.io/virtualenv.pyz", "virtualenv.pyz")
+    subprocess.run(f'{sys.executable} virtualenv.pyz .venv', shell=True, check=True)
+    os.remove('virtualenv.pyz')
+
+    subprocess.run(f'.venv/bin/python -m pip install --upgrade pip setuptools wheel', shell=True, check=True)
+    os.execv('.venv/bin/python', ['.venv/bin/python'] + sys.argv)
+    sys.exit(0) # should never ever reach here...
+
+import json
+
+with open('config.json', 'r') as configfile:
+    configs = json.load(configfile)
+    for config in configs['configs']:
+        if not 'mode' in config or config['mode'] == 'copy':
+            print(f"copy {config['source']} to {config['dest']}")
+        elif config['mode'] == 'combine':
+            print(f"Combining files in folder {config['source']} to {config['dest']}")
+            with open(os.path.expanduser(config['dest']), 'w') as output:
+                for infile in sorted(os.listdir(os.path.join(os.getcwd(), config['source']))):
+                    inputfile = os.path.join(os.getcwd(), config['source'], infile)
+                    if os.path.isfile(inputfile):
+                        print(f'Concatenating {inputfile}')
+                        with open(inputfile, 'r') as sourcefile:
+                            output.write(sourcefile.read())
+                            output.write("\n")
+        elif config['mode'] == 'link':
+            print(f"Creating a symlink from {config['source']} to {config['dest']}")
+            os.symlink(os.path.expanduser(config['source']), os.path.expanduser(config['dest']))

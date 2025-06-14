@@ -44,6 +44,11 @@
             "source": "vscode/settings.json",
             "dest": "~/Library/Application Support/Code/User/settings.json",
             "mode": "copy"
+        },
+        {
+            "source": "https://github.com/gonzaloalvarez/vim",
+            "dest": "~/.vim",
+            "mode": "git"
         }
     ]
 }

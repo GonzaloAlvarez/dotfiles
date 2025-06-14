@@ -26,11 +26,12 @@ if is_online and not in_venv:
     subprocess.run(f'{sys.executable} virtualenv.pyz .venv', shell=True, check=True)
     os.remove('virtualenv.pyz')
 
-    subprocess.run(f'.venv/bin/python -m pip install --upgrade pip setuptools wheel', shell=True, check=True)
+    subprocess.run(f'.venv/bin/python -m pip install --upgrade pip setuptools wheel paramiko dulwich', shell=True, check=True)
     os.execv('.venv/bin/python', ['.venv/bin/python'] + sys.argv)
     sys.exit(0) # should never ever reach here...
 
 import json
+import dulwich.porcelain
 
 with open('config.json', 'r') as configfile:
     configs = json.load(configfile)
@@ -53,4 +54,23 @@ with open('config.json', 'r') as configfile:
                             output.write("\n")
         elif config['mode'] == 'link':
             print(f"Creating a symlink from {config['source']} to {config['dest']}")
-            os.symlink(os.path.expanduser(config['source']), os.path.expanduser(config['dest']))
+            dest_path = os.path.expanduser(config['dest'])
+            source_path = os.path.expanduser(config['source'])
+            if os.path.lexists(dest_path): # Check if symlink or file/dir exists
+                if os.path.islink(dest_path):
+                    os.unlink(dest_path)
+                    print(f"Removed existing symlink at {dest_path}")
+                else:
+                    print(f"Destination {dest_path} exists and is not a symlink. Skipping.")
+                    continue # Or handle error/removal differently
+            os.symlink(source_path, dest_path)
+        elif config['mode'] == 'git':
+            source_url = config['source']
+            dest_path = os.path.expanduser(config['dest'])
+            print(f"Cloning repository {source_url} to {dest_path}")
+            if os.path.exists(dest_path):
+                print(f"Destination path {dest_path} already exists. Removing it for a fresh clone.")
+                shutil.rmtree(dest_path)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True) # Ensure parent directory exists
+            dulwich.porcelain.clone(source_url, dest_path)
+            print(f"Successfully cloned {source_url} to {dest_path}")

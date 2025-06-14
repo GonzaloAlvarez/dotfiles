@@ -74,3 +74,4 @@ with open('config.json', 'r') as configfile:
             os.makedirs(os.path.dirname(dest_path), exist_ok=True) # Ensure parent directory exists
             dulwich.porcelain.clone(source_url, dest_path)
             print(f"Successfully cloned {source_url} to {dest_path}")
+

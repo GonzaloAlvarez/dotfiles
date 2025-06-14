@@ -1,0 +1,49 @@
+{
+    "configs": [
+        {
+            "source": "bashrc",
+            "dest": "~/.bashrc",
+            "mode": "combine"
+        },
+        {
+            "source": "~/.bashrc",
+            "dest": "~/.bash_profile",
+            "mode": "link"
+        },
+        {
+            "source": "screenrc",
+            "dest": "~/.screenrc",
+            "mode": "combine"
+        },
+        {
+            "source": "tmux.conf",
+            "dest": "~/.tmux.conf",
+            "mode": "combine"
+        },
+        {
+            "source": "zshenv",
+            "dest": "~/.zshenv",
+            "mode": "combine"
+        },
+        {
+            "source": "ideavimrc",
+            "dest": "~/.ideavimrc",
+            "mode": "combine"
+        },
+        {
+            "source": "nvim/init.lua",
+            "dest": "~/.config/nvim/init.lua",
+            "mode": "copy"
+        },
+        {
+            "source": "vscode/keybindings.json",
+            "dest": "~/Library/Application Support/Code/User/keybindings.json",
+            "mode": "copy"
+        },
+        {
+            "source": "vscode/settings.json",
+            "dest": "~/Library/Application Support/Code/User/settings.json",
+            "mode": "copy"
+        }
+    ]
+}

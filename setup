@@ -39,7 +39,6 @@ with open('config.json', 'r') as configfile:
             source_path = os.path.expanduser(config['source'])
             dest_path = os.path.expanduser(config['dest'])
             print(f"copy {source_path} to {dest_path}")
-            # Create destination directory if it doesn't exist
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             shutil.copy2(source_path, dest_path)
         elif config['mode'] == 'combine':

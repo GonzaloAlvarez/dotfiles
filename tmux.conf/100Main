@@ -61,6 +61,10 @@ bind-key a send-prefix
 unbind r
 bind r source-file ~/.tmux.conf \; display "Reloaded!"
 
+# display popup with terminal
+unbind T
+bind T display-popup -d "#{pane_current_path}" -w 75% -h 75% -E "bash"
+
 # theme
 # separators
 tm_separator_left_bold="◀"

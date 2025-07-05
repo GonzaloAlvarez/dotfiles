@@ -14,10 +14,6 @@ Let's go with the actual steps
 
 Settings -> Appearance -> Themes -> 'Vanilla Amoled'
 
-**VIM Bindings**
-
-Settings -> Editor -> (scroll down) VIM Bindings
-
 **Disable Ident Using Tabs**
 
 Settings -> Editor -> __disable__ Ident Using Tabs (I will die on this hill)

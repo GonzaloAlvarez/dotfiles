@@ -2,8 +2,10 @@ if [ -f "$HOME/.gear/commands.sh" ]; then
     source "$HOME/.gear/commands.sh"
 fi
 
-if [ -f "$(brew --prefix asdf)/libexec/asdf.sh" ]; then
-    source "$(brew --prefix asdf)/libexec/asdf.sh"
+if command -v brew >/dev/null 2>&1; then
+    if [ -f "$(brew --prefix asdf)/libexec/asdf.sh" ]; then
+        source "$(brew --prefix asdf)/libexec/asdf.sh"
+    fi
 fi
 
 if ls $HOME/.bashrc.ext.* 1>/dev/null 2>&1; then

@@ -13,3 +13,7 @@ if ls $HOME/.bashrc.ext.* 1>/dev/null 2>&1; then
         source "$bashext"
     done
 fi
+
+if command -v fzf >/dev/null 2>&1; then
+    eval "$(fzf --bash)"
+fi

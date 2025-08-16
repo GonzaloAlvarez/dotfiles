@@ -30,12 +30,25 @@ if is_online and not in_venv:
     os.execv('.venv/bin/python', ['.venv/bin/python'] + sys.argv)
     sys.exit(0) # should never ever reach here...
 
-import json
+import os, json
 import dulwich.porcelain
+
+def cond_user(attr):
+    if not attr: return True
+    if attr[0] == '==' and attr[1]:
+        return attr[1] == os.getlogin()
+
+def meet_conditions(config):
+    if not 'if' in config: return True
+    attr = config['if'].split(' ')
+    if not attr: return True
+    if attr[0] == 'user': return cond_user(attr[1:])
+    return True
 
 with open('config.json', 'r') as configfile:
     configs = json.load(configfile)
     for config in configs['configs']:
+        if not meet_conditions(config): continue
         if not 'mode' in config or config['mode'] == 'copy':
             source_path = os.path.expanduser(config['source'])
             dest_path = os.path.expanduser(config['dest'])

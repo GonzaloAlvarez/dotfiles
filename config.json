@@ -36,6 +36,11 @@
             "mode": "copy"
         },
         {
+            "source": "aider/aider.conf.yml",
+            "dest": "~/.aider.conf.yml",
+            "mode": "copy"
+        },
+        {
             "source": "vscode/keybindings.json",
             "dest": "~/Library/Application Support/Code/User/keybindings.json",
             "mode": "copy"

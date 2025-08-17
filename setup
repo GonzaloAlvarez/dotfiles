@@ -30,7 +30,7 @@ if is_online and not in_venv:
     os.execv('.venv/bin/python', ['.venv/bin/python'] + sys.argv)
     sys.exit(0) # should never ever reach here...
 
-import os, json
+import os, json, shutil
 import dulwich.porcelain
 
 def cond_user(attr):
@@ -42,7 +42,9 @@ def meet_conditions(config):
     if not 'if' in config: return True
     attr = config['if'].split(' ')
     if not attr: return True
-    if attr[0] == 'user': return cond_user(attr[1:])
+    if attr[0] == 'user':
+        print(f"Condition [{' '.join(attr)}] is [{cond_user(attr[1:])}]")
+        return cond_user(attr[1:])
     return True
 
 with open('config.json', 'r') as configfile:
@@ -88,3 +90,5 @@ with open('config.json', 'r') as configfile:
             dulwich.porcelain.clone(source_url, dest_path)
             print(f"Successfully cloned {source_url} to {dest_path}")
 
+if os.path.exists('.venv') and os.path.isdir('.venv'):
+    shutil.rmtree('.venv')

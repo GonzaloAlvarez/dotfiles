@@ -38,6 +38,11 @@ def cond_user(attr):
     if attr[0] == '==' and attr[1]:
         return attr[1] == os.getlogin()
 
+def cond_os(attr):
+    if not attr: return True
+    if attr[0] == '==' and attr[1]:
+        return sys.platform.startswith(attr[1])
+
 def meet_conditions(config):
     if not 'if' in config: return True
     attr = config['if'].split(' ')
@@ -45,6 +50,9 @@ def meet_conditions(config):
     if attr[0] == 'user':
         print(f"Condition [{' '.join(attr)}] is [{cond_user(attr[1:])}]")
         return cond_user(attr[1:])
+    if attr[0] == 'os':
+        print(f"Condition [{' '.join(attr)}] is [{cond_os(attr[1:])}]")
+        return cond_os(attr[1:])
     return True
 
 with open('config.json', 'r') as configfile:

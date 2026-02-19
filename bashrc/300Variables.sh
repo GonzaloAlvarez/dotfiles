@@ -23,7 +23,7 @@ if [ -d /opt/homebrew/bin ]; then
 fi
 
 if [ -d ~/.toolbox/bin ]; then
-    export PATH="$HOME/.toolbox/bin:$PATH" 
+    export PATH="$HOME/.toolbox/bin:$PATH"
 fi
 
 if [ -d $HOME/bin ]; then
@@ -39,6 +39,23 @@ fi
 # dirs  755 drwxr-xr-x (777 minus 022)
 umask 022
 
+
+# We live in an agentic world, and these bitches don't like
+# my PS1...
+__bashrc_is_warp() { [[ "${TERM_PROGRAM:-}" == "WarpTerminal" ]]; }
+__bashrc_is_cursor_agent() { [[ -n "${CURSOR_AGENT:-}" ]]; }
+__bashrc_is_claude_code() { [[ -n "${CLAUDECODE:-}" ]]; }
+__bashrc_lite_mode() { __bashrc_is_warp || __bashrc_is_cursor_agent || __bashrc_is_claude_code; }
+
+if __bashrc_lite_mode; then
+  PS1='\u@\h \W \$ '
+  return 0
+fi
+
+case $- in
+  *i*) ;;
+  *) return 0 ;;
+esac
 
 # Set vim mode for shell
 set -o vi

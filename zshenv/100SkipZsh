@@ -1,1 +1,40 @@
-exec bash -l
+# ~/.zshenv
+# Keep this file FAST and QUIET: it runs for *every* zsh invocation (including non-interactive).
+
+# ---- Baseline PATH (optional but useful on macOS) ----
+# This makes PATH closer to what login shells get via /etc/zprofile, etc.
+if [[ -x /usr/libexec/path_helper ]]; then
+  eval "$(/usr/libexec/path_helper -s)"
+fi
+
+# Ensure PATH/path are treated as an array we can manipulate cleanly
+typeset -U path PATH
+
+# ---- Match your ~/.bashrc PATH logic ----
+# In your bashrc you:
+#   - append ~/.local/bin
+#   - prepend Homebrew
+#   - prepend ~/.toolbox/bin, ~/bin, ~/.asdf/shims
+
+# append to the end (like your bashrc)
+[[ -d "$HOME/.local/bin" ]] && path+=("$HOME/.local/bin")
+
+# Homebrew (Apple Silicon first, Intel fallback)
+if [[ -d /opt/homebrew/bin ]]; then
+  path=(/opt/homebrew/bin /opt/homebrew/sbin $path)
+elif [[ -d /usr/local/bin ]]; then
+  path=(/usr/local/bin /usr/local/sbin $path)
+fi
+
+# your custom dirs (prepend)
+[[ -d "$HOME/.toolbox/bin" ]] && path=("$HOME/.toolbox/bin" $path)
+[[ -d "$HOME/bin" ]]         && path=("$HOME/bin" $path)
+[[ -d "$HOME/.asdf/shims" ]] && path=("$HOME/.asdf/shims" $path)
+
+export PATH
+
+# ---- Interactive terminals only: bounce to bash login ----
+# This avoids breaking tool/agent invocations (non-interactive shells).
+if [[ -o interactive ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+  exec bash -l
+fi

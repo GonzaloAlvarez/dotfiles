@@ -26,7 +26,8 @@ if [ -d ~/.toolbox/bin ]; then
     export PATH="$HOME/.toolbox/bin:$PATH"
 fi
 
-if [ -d $HOME/bin ]; then
+if [ ! -d $HOME/bin ]; then
+    mkdir "$HOME/bin"
     export PATH="$HOME/bin:$PATH"
 fi
 
@@ -40,8 +41,7 @@ fi
 umask 022
 
 
-# We live in an agentic world, and these bitches don't like
-# my PS1...
+# We live in an agentic world, and these bitches don't like my PS1
 __bashrc_is_warp() { [[ "${TERM_PROGRAM:-}" == "WarpTerminal" ]]; }
 __bashrc_is_cursor_agent() { [[ -n "${CURSOR_AGENT:-}" ]]; }
 __bashrc_is_claude_code() { [[ -n "${CLAUDECODE:-}" ]]; }

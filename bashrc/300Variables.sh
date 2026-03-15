@@ -28,8 +28,8 @@ fi
 
 if [ ! -d $HOME/bin ]; then
     mkdir "$HOME/bin"
-    export PATH="$HOME/bin:$PATH"
 fi
+export PATH="$HOME/bin:$PATH"
 
 if [ -d "$HOME/.asdf/shims" ]; then
     export PATH="$HOME/.asdf/shims:$PATH"

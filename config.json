@@ -71,6 +71,16 @@
             "if": "os == darwin"
         },
         {
+            "source": "claude/statusline.sh",
+            "dest": "~/.claude/statusline.sh",
+            "mode": "copy"
+        },
+        {
+            "source": "claude/settings.json",
+            "dest": "~/.claude/settings.json",
+            "mode": "json_merge"
+        },
+        {
             "source": "https://github.com/gonzaloalvarez/vim",
             "dest": "~/.vim",
             "mode": "git"

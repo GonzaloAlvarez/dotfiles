@@ -87,6 +87,20 @@ with open('config.json', 'r') as configfile:
                     print(f"Destination {dest_path} exists and is not a symlink. Skipping.")
                     continue # Or handle error/removal differently
             os.symlink(source_path, dest_path)
+        elif config['mode'] == 'json_merge':
+            source_path = os.path.expanduser(config['source'])
+            dest_path = os.path.expanduser(config['dest'])
+            print(f"Merging JSON from {source_path} into {dest_path}")
+            with open(source_path, 'r') as f:
+                source_data = json.load(f)
+            dest_data = {}
+            if os.path.exists(dest_path):
+                with open(dest_path, 'r') as f:
+                    dest_data = json.load(f)
+            dest_data.update(source_data)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            with open(dest_path, 'w') as f:
+                json.dump(dest_data, f, indent=2)
         elif config['mode'] == 'git':
             source_url = config['source']
             dest_path = os.path.expanduser(config['dest'])

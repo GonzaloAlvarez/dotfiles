@@ -35,6 +35,10 @@ if [ -d "$HOME/.asdf/shims" ]; then
     export PATH="$HOME/.asdf/shims:$PATH"
 fi
 
+if [ -d "$HOME/.gear/util" ]; then
+    export PATH="$HOME/.gear/util:$PATH"
+fi
+
 # Files will be created with these permissions:
 # files 644 -rw-r--r-- (666 minus 022)
 # dirs  755 drwxr-xr-x (777 minus 022)

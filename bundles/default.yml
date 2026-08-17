@@ -1,0 +1,113 @@
+schema: 1
+name: default
+description: Universal dotfiles baseline
+automatic: true
+
+targets:
+  - id: shell.bashrc
+    operation: combine
+    source: bashrc
+    destination: ~/.bashrc
+
+  - id: shell.bash_profile
+    operation: link
+    target: ~/.bashrc
+    destination: ~/.bash_profile
+
+  - id: screen.screenrc
+    operation: combine
+    source: screenrc
+    destination: ~/.screenrc
+
+  - id: tmux.conf
+    operation: combine
+    source: tmux.conf
+    destination: ~/.tmux.conf
+
+  - id: shell.zshenv
+    operation: combine
+    source: zshenv
+    destination: ~/.zshenv
+
+  - id: ideavim.rc
+    operation: combine
+    source: ideavimrc
+    destination: ~/.ideavimrc
+
+  - id: aider.conf
+    operation: copy
+    destination: ~/.aider.conf.yml
+    validate: [yaml]
+    variants:
+      - when:
+          user: [galvarez]
+        source: aider/aider.openai.conf.yml
+      - source: aider/aider.conf.yml
+
+  - id: vscode.settings
+    operation: copy
+    source: vscode/settings.json
+    destination: "~/Library/Application Support/Code/User/settings.json"
+    when:
+      os: [darwin]
+    validate: [utf8, nonempty]
+
+  - id: vscode.keybindings
+    operation: copy
+    source: vscode/keybindings.json
+    destination: "~/Library/Application Support/Code/User/keybindings.json"
+    when:
+      os: [darwin]
+    validate: [utf8, nonempty]
+
+  - id: vscode.insiders.settings
+    operation: copy
+    source: vscode/settings.json
+    destination: "~/Library/Application Support/Code - Insiders/User/settings.json"
+    when:
+      os: [darwin]
+    validate: [utf8, nonempty]
+
+  - id: vscode.insiders.keybindings
+    operation: copy
+    source: vscode/keybindings.json
+    destination: "~/Library/Application Support/Code - Insiders/User/keybindings.json"
+    when:
+      os: [darwin]
+    validate: [utf8, nonempty]
+
+  - id: claude.statusline
+    operation: copy
+    source: claude/statusline.sh
+    destination: ~/.claude/statusline.sh
+    mode: "0755"
+    validate: [utf8, nonempty, executable]
+
+  - id: claude.settings.statusline
+    operation: json_merge
+    source: claude/settings.json
+    destination: ~/.claude/settings.json
+    owns: [/statusLine]
+
+  - id: iterm.blackbeast
+    operation: copy
+    source: iterm/Profiles.json
+    destination: "~/Library/Application Support/iTerm2/DynamicProfiles/BlackBeast.json"
+    when:
+      os: [darwin]
+    validate: [json]
+
+  - id: vim.tree
+    operation: git_tree
+    url: https://github.com/gonzaloalvarez/vim
+    destination: ~/.vim
+
+  - id: nvim.tree
+    operation: git_tree
+    url: https://github.com/GonzaloAlvarez/nvim
+    destination: ~/.config/nvim
+
+  - id: seshat.bin
+    operation: link
+    target: "repo:seshat"
+    destination: ~/bin/seshat

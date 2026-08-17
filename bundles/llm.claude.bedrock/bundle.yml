@@ -1,0 +1,37 @@
+schema: 1
+name: llm.claude.bedrock
+description: Claude Code configured to use AWS Bedrock
+automatic: false
+
+tags:
+  - development
+  - llm
+  - claude
+  - aws
+
+depends_on:
+  - default
+
+requires:
+  commands:
+    - claude
+    - kauket
+  kauket:
+    - id: aws.profile.bedrock
+      action: install
+
+variables:
+  aws_profile:
+    type: string
+    default: bedrock
+  aws_region:
+    type: string
+    default: us-east-2
+
+targets:
+  - id: claude.settings.bedrock
+    operation: json_merge
+    source: bundles/llm.claude.bedrock/files/bedrock-env.json.j2
+    destination: ~/.claude/settings.json
+    template: jinja2
+    owns: [/env]

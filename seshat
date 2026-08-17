@@ -1,0 +1,79 @@
+#!/bin/sh
+''':'
+for name in python3 python; do
+    type "$name" >/dev/null 2>&1 && exec "$name" "$0" "$@"
+done
+echo "seshat requires python" >&2
+exit 1
+':'''
+
+import os
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.abspath(__file__))
+SESHAT_DIR = os.path.join(REPO, ".seshat")
+VENV = os.path.join(SESHAT_DIR, "venv")
+VENV_PY = os.path.join(VENV, "bin", "python")
+DEPS = ["Jinja2==3.1.6", "MarkupSafe==3.0.2", "PyYAML==6.0.2"]
+
+in_venv = hasattr(sys, "real_prefix") or sys.base_prefix != sys.prefix
+
+if not in_venv:
+    try:
+        socket.create_connection(("8.8.8.8", 53), 2).close()
+        online = True
+    except OSError:
+        online = False
+    if not online:
+        try:
+            import jinja2
+            import yaml
+        except ImportError:
+            sys.stderr.write(
+                "seshat: offline and Jinja2/PyYAML are not available to the system python; "
+                "connect to the internet and retry\n"
+            )
+            sys.exit(1)
+        sys.path.insert(0, REPO)
+        os.environ["SESHAT_REPO"] = REPO
+        from seshatlib.cli import main
+
+        sys.exit(main(sys.argv[1:]))
+    from urllib.request import urlretrieve
+
+    os.makedirs(SESHAT_DIR, mode=0o700, exist_ok=True)
+    os.chmod(SESHAT_DIR, 0o700)
+    shutil.rmtree(VENV, ignore_errors=True)
+    pyz = os.path.join(SESHAT_DIR, "virtualenv.pyz")
+    try:
+        urlretrieve("https://bootstrap.pypa.io/virtualenv.pyz", pyz)
+        subprocess.run(
+            [sys.executable, pyz, "--quiet", VENV],
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+        os.remove(pyz)
+        subprocess.run([VENV_PY, "-m", "pip", "install", "--quiet"] + DEPS, check=True)
+    except BaseException:
+        shutil.rmtree(VENV, ignore_errors=True)
+        if os.path.exists(pyz):
+            os.remove(pyz)
+        raise
+    os.execv(VENV_PY, [VENV_PY, os.path.abspath(__file__)] + sys.argv[1:])
+    sys.exit(1)
+
+signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+sys.path.insert(0, REPO)
+os.environ["SESHAT_REPO"] = REPO
+rc = 1
+try:
+    from seshatlib.cli import main
+
+    rc = main(sys.argv[1:])
+finally:
+    shutil.rmtree(VENV, ignore_errors=True)
+sys.exit(rc)

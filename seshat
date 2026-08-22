@@ -14,7 +14,7 @@ import socket
 import subprocess
 import sys
 
-REPO = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(os.path.realpath(__file__))
 SESHAT_DIR = os.path.join(REPO, ".seshat")
 VENV = os.path.join(SESHAT_DIR, "venv")
 VENV_PY = os.path.join(VENV, "bin", "python")
@@ -63,7 +63,7 @@ if not in_venv:
         if os.path.exists(pyz):
             os.remove(pyz)
         raise
-    os.execv(VENV_PY, [VENV_PY, os.path.abspath(__file__)] + sys.argv[1:])
+    os.execv(VENV_PY, [VENV_PY, os.path.realpath(__file__)] + sys.argv[1:])
     sys.exit(1)
 
 signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))

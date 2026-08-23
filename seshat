@@ -18,7 +18,7 @@ REPO = os.path.dirname(os.path.realpath(__file__))
 SESHAT_DIR = os.path.join(REPO, ".seshat")
 VENV = os.path.join(SESHAT_DIR, "venv")
 VENV_PY = os.path.join(VENV, "bin", "python")
-DEPS = ["Jinja2==3.1.6", "MarkupSafe==3.0.2", "PyYAML==6.0.2"]
+DEPS = ["Jinja2==3.1.6", "MarkupSafe==3.0.2", "PyYAML==6.0.3"]
 
 in_venv = hasattr(sys, "real_prefix") or sys.base_prefix != sys.prefix
 

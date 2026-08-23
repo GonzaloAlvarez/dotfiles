@@ -124,6 +124,27 @@ but are deliberately **not** installed by any bundle. Only manifest declarations
 ownership. `~/.config/nvim` is wholly owned by the external `GonzaloAlvarez/nvim` repository
 (the old `nvim/init.lua` copy was shadowed by that clone and has been dropped).
 
+## Termux
+
+Seshat runs unmodified on Termux (Android): the launcher's venv path works on the Termux
+python (3.14+), and every destination is `$HOME`-confined by `installer.safe_dest_path()`, so
+nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` there
+(`platform.system()`), and no target currently needs Termux-specific gating.
+
+- Detection convention (repo-wide, matching amun): the `TERMUX_VERSION` environment variable
+  is the ONLY Termux signal — never `$PREFIX` path checks.
+- If a target ever needs Termux gating, the agreed design is a new defaulted fact
+  `flavor: "termux" | "standard"` (from `TERMUX_VERSION`): add it as a defaulted field on the
+  frozen `Facts` dataclass, `FACT_NAMES`, and the `platforms:` key whitelist in
+  `manifest.py`. This is digest-neutral by construction — the per-bundle source digest hashes
+  resolved targets and payload bytes only, never facts or `when:` clauses.
+- Payload conventions for Termux compatibility: no absolute `/usr/...` paths in shell
+  fragments (PATH lookup instead); executed payloads use `#!/usr/bin/env bash`, never
+  `#!/bin/bash` (only `$PREFIX/bin/bash` exists on Termux; termux-exec translates `env`).
+- 2026-08: the PyYAML launcher pin moved to 6.0.3 (Python 3.14 support) and the
+  `claude.statusline` / `shell.bashrc` payloads were made Termux-portable — a one-time
+  legitimate `outdated → update` on all machines.
+
 ## Operational notes
 
 - One authoritative checkout per machine: state lives in `<repo>/.seshat/`, so a second

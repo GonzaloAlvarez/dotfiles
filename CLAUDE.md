@@ -150,10 +150,9 @@ nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` ther
 - One authoritative checkout per machine: state lives in `<repo>/.seshat/`, so a second
   checkout has its own empty state (it will adopt identical files and block on divergent ones).
 - The iTerm dynamic profile (`iterm/Profiles.json` → `~/Library/Application
-  Support/iTerm2/DynamicProfiles/BlackBeast.json`) is Seshat-owned as of this migration. Amun
-  still copies the same bytes from the same source until its role is updated — byte-identical,
-  so no drift is reported.
-- Amun follow-ups (in the amun repo, not here): drop `failed_when: false` from
-  `roles/dotfiles/tasks/main.yml` so Seshat failures surface (treat exit 2 as a failure), and
-  remove the iTerm copy task from `roles/dotfiles/tasks/osx_iterm.yml` (keep the osx_defaults
-  default-profile GUID task).
+  Support/iTerm2/DynamicProfiles/BlackBeast.json`) is Seshat-owned; amun's copy task was
+  removed 2026-08-22 (only the osx_defaults default-profile GUID task remains there).
+- Amun treats Seshat exit codes strictly as of 2026-08-22 (`failed_when: false` dropped):
+  exit 2 (blocked) fails provisioning. Amun also removes untouched stock skel/base-files
+  copies of `.bashrc`/`.bash_profile` before `./setup` so fresh machines don't block —
+  user-modified files still block, by design.

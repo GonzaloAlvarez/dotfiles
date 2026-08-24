@@ -111,3 +111,11 @@ targets:
     operation: link
     target: "repo:seshat"
     destination: ~/bin/seshat
+
+  - id: termux.properties
+    operation: copy
+    source: termux/termux.properties
+    destination: ~/.termux/termux.properties
+    when:
+      flavor: [termux]
+    validate: [utf8, nonempty]

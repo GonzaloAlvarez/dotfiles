@@ -129,15 +129,17 @@ ownership. `~/.config/nvim` is wholly owned by the external `GonzaloAlvarez/nvim
 Seshat runs unmodified on Termux (Android): the launcher's venv path works on the Termux
 python (3.14+), and every destination is `$HOME`-confined by `installer.safe_dest_path()`, so
 nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` there
-(`platform.system()`), and no target currently needs Termux-specific gating.
+(`platform.system()`).
 
 - Detection convention (repo-wide, matching amun): the `TERMUX_VERSION` environment variable
   is the ONLY Termux signal — never `$PREFIX` path checks.
-- If a target ever needs Termux gating, the agreed design is a new defaulted fact
-  `flavor: "termux" | "standard"` (from `TERMUX_VERSION`): add it as a defaulted field on the
-  frozen `Facts` dataclass, `FACT_NAMES`, and the `platforms:` key whitelist in
-  `manifest.py`. This is digest-neutral by construction — the per-bundle source digest hashes
-  resolved targets and payload bytes only, never facts or `when:` clauses.
+- Termux gating is the `flavor` fact: `"termux" | "standard"` (from `TERMUX_VERSION`), a
+  defaulted field on the frozen `Facts` dataclass, in `FACT_NAMES`, and in the `platforms:`
+  key whitelist in `manifest.py`. Usable in `when:`/`variants:`/`platforms:` like any fact.
+  Digest-neutral by construction — the per-bundle source digest hashes resolved targets and
+  payload bytes only, never facts or `when:` clauses. First consumer: the default bundle's
+  `termux.properties` target (`termux/termux.properties` → `~/.termux/termux.properties`,
+  `when: {flavor: [termux]}`).
 - Payload conventions for Termux compatibility: no absolute `/usr/...` paths in shell
   fragments (PATH lookup instead); executed payloads use `#!/usr/bin/env bash`, never
   `#!/bin/bash` (only `$PREFIX/bin/bash` exists on Termux; termux-exec translates `env`).

@@ -13,7 +13,7 @@ from .state import canonical_json, canonical_value_hash, sha256_bytes, sha256_fi
 MANIFEST_SCHEMA = 1
 ID_RE = re.compile(r"^[a-z][a-z0-9_-]*(\.[a-z][a-z0-9_-]*)*$")
 OWNS_RE = re.compile(r"^/[A-Za-z0-9_.-]+$")
-FACT_NAMES = ("os", "arch", "user", "hostname")
+FACT_NAMES = ("os", "arch", "user", "hostname", "flavor")
 OPERATIONS = ("copy", "combine", "link", "json_merge", "git_tree")
 
 
@@ -27,6 +27,7 @@ class Facts:
     arch: str
     user: str
     hostname: str
+    flavor: str = "standard"
 
 
 def gather_facts():
@@ -37,6 +38,7 @@ def gather_facts():
         arch=arch,
         user=getpass.getuser(),
         hostname=socket.gethostname().split(".")[0],
+        flavor="termux" if os.environ.get("TERMUX_VERSION") else "standard",
     )
 
 
@@ -263,7 +265,7 @@ def _parse_bundle(raw, path, expected_name):
     if not isinstance(rawp, dict):
         raise ManifestError(f"{where}: platforms must be a mapping")
     for key in rawp:
-        if key not in ("os", "arch"):
+        if key not in ("os", "arch", "flavor"):
             raise ManifestError(f"{where}: unknown platforms key: {key}")
         platforms[key] = _str_list(rawp[key], f"{where}.platforms.{key}")
 

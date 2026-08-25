@@ -12,7 +12,7 @@ what gets installed; Seshat tracks which bundle owns every file and JSON key in
 ## Commands
 
 ```bash
-./setup                              # legacy entry point == seshat install default --automatic
+./setup                              # entry point: legacy reaper, then seshat install default --automatic
 ./seshat install [bundle]            # install default (implied) or an optional bundle
 ./seshat list [bundle] [--json]      # bundle states: not-installed/current/outdated/modified/missing/blocked/orphaned
 ./seshat remove <bundle> [--yes]     # remove an optional bundle (default cannot be removed)
@@ -158,3 +158,12 @@ nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` ther
   exit 2 (blocked) fails provisioning. Amun also removes untouched stock skel/base-files
   copies of `.bashrc`/`.bash_profile` before `./setup` so fresh machines don't block —
   user-modified files still block, by design.
+- **Pre-Seshat legacy migration** (`seshatlib/legacy.py`, run by `./setup` before the
+  launcher, stdlib-only so it needs no venv): machines bootstrapped before the Seshat
+  migration carry old config.json-era outputs (combined `.bashrc` etc., and a plain-dir
+  `~/.config/nvim` holding the old `init.lua` copy) that block once payloads drift. The
+  reaper removes such a file ONLY when it byte-matches a rendering reconstructed from
+  this repo's git history (provably untouched) and differs from the current rendering;
+  the nvim dir only when every entry matches a historical `nvim/*` blob and it isn't a
+  git repo. User-modified content still blocks, by design. Added 2026-08-24 after
+  `amun update` on a pre-Seshat devbox failed with two blocked targets.

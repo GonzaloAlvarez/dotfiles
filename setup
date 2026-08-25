@@ -1,3 +1,11 @@
 #!/bin/sh
 set -eu
-exec "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)/seshat" install default --automatic
+dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
+# Reap provably-untouched pre-Seshat outputs first so Seshat doesn't block on
+# them (stdlib-only, no-op on machines without legacy leftovers).
+if command -v python3 >/dev/null 2>&1; then
+    python3 "$dir/seshatlib/legacy.py" "$dir"
+elif command -v python >/dev/null 2>&1; then
+    python "$dir/seshatlib/legacy.py" "$dir"
+fi
+exec "$dir/seshat" install default --automatic

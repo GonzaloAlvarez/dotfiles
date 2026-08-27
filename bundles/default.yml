@@ -89,6 +89,14 @@ targets:
     destination: ~/.claude/settings.json
     owns: [/statusLine]
 
+  - id: claude.settings.autopermissions
+    operation: json_merge
+    source: claude/settings-auto.json
+    destination: ~/.claude/settings.json
+    owns: [/permissions, /skipAutoPermissionPrompt]
+    when:
+      os: [linux]
+
   - id: iterm.blackbeast
     operation: copy
     source: iterm/Profiles.json

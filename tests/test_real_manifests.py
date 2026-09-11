@@ -9,10 +9,12 @@ LINUX = Facts(os="linux", arch="amd64", user="gonzalo", hostname="pi")
 
 def test_real_bundles_load_and_validate():
     bundles = manifest.load_bundles(REPO)
-    assert set(bundles) == {"default", "llm.claude.bedrock"}
+    assert set(bundles) == {"default", "llm.claude.bedrock", "llm.qwen.local"}
     assert bundles["default"].automatic is True
     assert bundles["llm.claude.bedrock"].automatic is False
     assert bundles["llm.claude.bedrock"].depends_on == ["default"]
+    assert bundles["llm.qwen.local"].automatic is False
+    assert bundles["llm.qwen.local"].depends_on == ["default"]
 
 
 def test_real_bundles_no_overlaps():
@@ -69,6 +71,29 @@ def test_real_default_target_coverage():
     assert "~/.config/nvim/init.lua" not in dests
     assert not any("obsidian" in (t.source or "") for t in darwin_targets.values())
     assert not any("conky" in (t.source or "") for t in darwin_targets.values())
+
+
+def test_real_qwen_local_bundle_shape():
+    bundles = manifest.load_bundles(REPO)
+    b = bundles["llm.qwen.local"]
+    assert b.requires_commands == ["localllm", "qwen"]
+    assert b.requires_kauket == []
+    assert b.variables["model_file"].default == "Qwen3.8-27B-UD-Q6_K.gguf"
+    assert b.variables["model_alias"].default == "qwen3.8-27b-local"
+    assert b.variables["kv_quant"].default == "q8_0"
+    assert b.variables["port"].default == "8080"
+
+    darwin_targets = {t.id: t for t in manifest.resolve_targets(b, DARWIN)}
+    assert set(darwin_targets) == {"localllm.config", "qwen.settings.local", "qwen.env"}
+    assert darwin_targets["qwen.settings.local"].owns == [
+        "/modelProviders", "/primaryModel", "/model", "/security",
+    ]
+    assert darwin_targets["qwen.settings.local"].template is True
+    assert darwin_targets["localllm.config"].template is True
+    assert darwin_targets["qwen.env"].mode == 0o600
+
+    # darwin-only bundle: the platforms gate must resolve nothing elsewhere
+    assert manifest.resolve_targets(b, LINUX) == []
 
 
 def test_real_bedrock_bundle_shape():

@@ -1,0 +1,33 @@
+{
+  "modelProviders": {
+    "openai": [
+      {
+        "id": {{ vars.model_alias | tojson }},
+        "name": {{ vars.model_alias | tojson }},
+        "envKey": "LOCAL_LLAMA_API_KEY",
+        "baseUrl": "http://127.0.0.1:{{ vars.port }}/v1",
+        "generationConfig": {
+          "timeout": 900000,
+          "maxRetries": 1,
+          "contextWindowSize": {{ vars.ctx }},
+          "samplingParams": {
+            "temperature": {{ vars.temp }},
+            "top_p": {{ vars.top_p }},
+            "top_k": {{ vars.top_k }},
+            "max_tokens": 8192
+          }
+        }
+      }
+    ]
+  },
+  "primaryModel": {{ vars.model_alias | tojson }},
+  "model": {
+    "name": {{ vars.model_alias | tojson }},
+    "baseUrl": "http://127.0.0.1:{{ vars.port }}/v1"
+  },
+  "security": {
+    "auth": {
+      "selectedType": "openai"
+    }
+  }
+}

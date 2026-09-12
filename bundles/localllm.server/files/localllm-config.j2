@@ -1,12 +1,12 @@
-# Managed by seshat (dotfiles bundle llm.qwen.local) - do not edit by hand;
-# change with: seshat install llm.qwen.local --set <name>=<value>
+# Managed by seshat (dotfiles bundle localllm.server) - do not edit by hand;
+# change with: seshat install localllm.server --set <name>=<value>
 # Read by ~/bin/localllm (gear com/localllm). Environment variables override
 # any of these at runtime, e.g.: KV_QUANT=f16 localllm serve
 MODEL_HF_REPO={{ vars.model_hf_repo }}
 MODEL_FILE={{ vars.model_file }}
 MODEL_SHA256={{ vars.model_sha256 }}
 MODEL_ALIAS={{ vars.model_alias }}
-HOST=127.0.0.1
+HOST={{ vars.bind }}
 PORT={{ vars.port }}
 CTX={{ vars.ctx }}
 NGL=all

@@ -1,0 +1,59 @@
+schema: 1
+name: localllm.server
+description: >
+  Server-side configuration for gear com/localllm (llama-server model,
+  flags, and bind address). Requires gear com/localllm on PATH first: run
+  `localllm --version` once so gear lazy-installs it. Bind 127.0.0.1 serves
+  this machine only; --set bind=0.0.0.0 serves remote clients (see the
+  client bundle llm.qwen.local and its server_host variable).
+automatic: false
+
+tags:
+  - development
+  - llm
+  - local
+
+depends_on:
+  - default
+
+# gear com/localllm ships setup-darwin only today; lift when setup-linux lands.
+platforms:
+  os: [darwin]
+
+requires:
+  commands:
+    - localllm
+
+variables:
+  model_hf_repo:
+    type: string
+    default: unsloth/Qwen3.8-27B-GGUF
+  model_file:
+    type: string
+    default: Qwen3.8-27B-UD-Q6_K.gguf
+  model_sha256:
+    type: string
+    default: c9c206812fbe4ac7b76a729e25928b63f2ae89d37f69da7a71c20aec763cd436
+  model_alias:
+    type: string
+    default: qwen3.8-27b-local
+  bind:
+    type: string
+    default: 127.0.0.1
+  port:
+    type: string
+    default: "8080"
+  ctx:
+    type: string
+    default: "65536"
+  kv_quant:
+    type: string
+    default: q8_0
+
+targets:
+  - id: localllm.config
+    operation: copy
+    source: bundles/localllm.server/files/localllm-config.j2
+    destination: ~/.config/localllm/config
+    template: jinja2
+    validate: [utf8, nonempty]

@@ -1,9 +1,10 @@
 schema: 1
 name: llm.qwen.local
 description: >
-  qwen-code CLI wired to a local llama.cpp server (gear com/localllm).
-  Requires the gear commands first: run `localllm --version` and
-  `qwen --version` once so gear lazy-installs them, then install this bundle.
+  qwen-code CLI pointed at a localllm llama.cpp server — same machine by
+  default (127.0.0.1), or a remote server via --set server_host=<ip|name>.
+  Requires gear com/qwen on PATH first: run `qwen --version` once so gear
+  lazy-installs it. The server side is the separate bundle localllm.server.
 automatic: false
 
 tags:
@@ -15,39 +16,26 @@ tags:
 depends_on:
   - default
 
-# gear com/localllm ships setup-darwin only today; lift when setup-debian lands.
 platforms:
-  os: [darwin]
+  os: [darwin, linux]
 
 requires:
   commands:
-    - localllm
     - qwen
 
-# One variable set feeds BOTH the server config and the qwen settings, so a
-# single --set can never desynchronize client and server. All strings.
 variables:
-  model_hf_repo:
+  server_host:
     type: string
-    default: unsloth/Qwen3.8-27B-GGUF
-  model_file:
-    type: string
-    default: Qwen3.8-27B-UD-Q6_K.gguf
-  model_sha256:
-    type: string
-    default: c9c206812fbe4ac7b76a729e25928b63f2ae89d37f69da7a71c20aec763cd436
-  model_alias:
-    type: string
-    default: qwen3.8-27b-local
+    default: 127.0.0.1
   port:
     type: string
     default: "8080"
+  model_alias:
+    type: string
+    default: qwen3.8-27b-local
   ctx:
     type: string
     default: "65536"
-  kv_quant:
-    type: string
-    default: q8_0
   temp:
     type: string
     default: "0.6"
@@ -59,13 +47,6 @@ variables:
     default: "20"
 
 targets:
-  - id: localllm.config
-    operation: copy
-    source: bundles/llm.qwen.local/files/localllm-config.j2
-    destination: ~/.config/localllm/config
-    template: jinja2
-    validate: [utf8, nonempty]
-
   - id: qwen.settings.local
     operation: json_merge
     source: bundles/llm.qwen.local/files/qwen-settings.json.j2

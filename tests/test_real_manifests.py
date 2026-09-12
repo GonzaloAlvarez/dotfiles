@@ -9,12 +9,14 @@ LINUX = Facts(os="linux", arch="amd64", user="gonzalo", hostname="pi")
 
 def test_real_bundles_load_and_validate():
     bundles = manifest.load_bundles(REPO)
-    assert set(bundles) == {"default", "llm.claude.bedrock", "llm.qwen.local"}
+    assert set(bundles) == {"default", "llm.claude.bedrock", "llm.qwen.local", "localllm.server"}
     assert bundles["default"].automatic is True
     assert bundles["llm.claude.bedrock"].automatic is False
     assert bundles["llm.claude.bedrock"].depends_on == ["default"]
     assert bundles["llm.qwen.local"].automatic is False
     assert bundles["llm.qwen.local"].depends_on == ["default"]
+    assert bundles["localllm.server"].automatic is False
+    assert bundles["localllm.server"].depends_on == ["default"]
 
 
 def test_real_bundles_no_overlaps():
@@ -76,23 +78,41 @@ def test_real_default_target_coverage():
 def test_real_qwen_local_bundle_shape():
     bundles = manifest.load_bundles(REPO)
     b = bundles["llm.qwen.local"]
-    assert b.requires_commands == ["localllm", "qwen"]
+    # client-only: the server side is the separate localllm.server bundle
+    assert b.requires_commands == ["qwen"]
     assert b.requires_kauket == []
-    assert b.variables["model_file"].default == "Qwen3.8-27B-UD-Q6_K.gguf"
+    assert b.variables["server_host"].default == "127.0.0.1"
     assert b.variables["model_alias"].default == "qwen3.8-27b-local"
-    assert b.variables["kv_quant"].default == "q8_0"
     assert b.variables["port"].default == "8080"
 
     darwin_targets = {t.id: t for t in manifest.resolve_targets(b, DARWIN)}
-    assert set(darwin_targets) == {"localllm.config", "qwen.settings.local", "qwen.env"}
+    assert set(darwin_targets) == {"qwen.settings.local", "qwen.env"}
     assert darwin_targets["qwen.settings.local"].owns == [
         "/modelProviders", "/primaryModel", "/model", "/security",
     ]
     assert darwin_targets["qwen.settings.local"].template is True
-    assert darwin_targets["localllm.config"].template is True
     assert darwin_targets["qwen.env"].mode == 0o600
 
-    # darwin-only bundle: the platforms gate must resolve nothing elsewhere
+    # client runs on linux too (remote server topology)
+    linux_targets = {t.id: t for t in manifest.resolve_targets(b, LINUX)}
+    assert set(linux_targets) == {"qwen.settings.local", "qwen.env"}
+
+
+def test_real_localllm_server_bundle_shape():
+    bundles = manifest.load_bundles(REPO)
+    b = bundles["localllm.server"]
+    assert b.requires_commands == ["localllm"]
+    assert b.requires_kauket == []
+    assert b.variables["model_file"].default == "Qwen3.8-27B-UD-Q6_K.gguf"
+    assert b.variables["bind"].default == "127.0.0.1"
+    assert b.variables["kv_quant"].default == "q8_0"
+    assert b.variables["port"].default == "8080"
+
+    darwin_targets = {t.id: t for t in manifest.resolve_targets(b, DARWIN)}
+    assert set(darwin_targets) == {"localllm.config"}
+    assert darwin_targets["localllm.config"].template is True
+
+    # darwin-only until gear ships com/localllm setup-linux
     assert manifest.resolve_targets(b, LINUX) == []
 
 

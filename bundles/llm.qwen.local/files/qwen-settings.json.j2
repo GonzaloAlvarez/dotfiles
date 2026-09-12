@@ -5,7 +5,7 @@
         "id": {{ vars.model_alias | tojson }},
         "name": {{ vars.model_alias | tojson }},
         "envKey": "LOCAL_LLAMA_API_KEY",
-        "baseUrl": "http://127.0.0.1:{{ vars.port }}/v1",
+        "baseUrl": "http://{{ vars.server_host }}:{{ vars.port }}/v1",
         "generationConfig": {
           "timeout": 900000,
           "maxRetries": 1,
@@ -23,7 +23,7 @@
   "primaryModel": {{ vars.model_alias | tojson }},
   "model": {
     "name": {{ vars.model_alias | tojson }},
-    "baseUrl": "http://127.0.0.1:{{ vars.port }}/v1"
+    "baseUrl": "http://{{ vars.server_host }}:{{ vars.port }}/v1"
   },
   "security": {
     "auth": {

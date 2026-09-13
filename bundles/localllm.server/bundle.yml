@@ -49,6 +49,12 @@ variables:
   kv_quant:
     type: string
     default: q8_0
+  # Speculative decoding (llama-server --spec-type). "none" disables. Only
+  # enable per machine/model after benchmarking: draft-mtp needs MTP tensors
+  # in the GGUF, wins big on code-like output, and LOSES on free-form prose.
+  spec_type:
+    type: string
+    default: none
 
 targets:
   - id: localllm.config

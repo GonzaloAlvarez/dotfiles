@@ -106,6 +106,7 @@ def test_real_localllm_server_bundle_shape():
     assert b.variables["model_file"].default == "Qwen3.8-27B-UD-Q6_K.gguf"
     assert b.variables["bind"].default == "127.0.0.1"
     assert b.variables["kv_quant"].default == "q8_0"
+    assert b.variables["spec_type"].default == "none"
     assert b.variables["port"].default == "8080"
 
     darwin_targets = {t.id: t for t in manifest.resolve_targets(b, DARWIN)}

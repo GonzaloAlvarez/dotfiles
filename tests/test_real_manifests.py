@@ -51,6 +51,8 @@ def test_real_default_target_coverage():
         "vim.tree",
         "nvim.tree",
         "seshat.bin",
+        "herdr.config",
+        "herdr.move_pane",
     ):
         assert tid in darwin_targets, tid
         assert tid in linux_targets, tid
@@ -68,6 +70,8 @@ def test_real_default_target_coverage():
     assert darwin_targets["aider.conf"].source == "aider/aider.openai.conf.yml"
     assert linux_targets["aider.conf"].source == "aider/aider.conf.yml"
     assert darwin_targets["claude.statusline"].mode == 0o755
+    assert darwin_targets["herdr.move_pane"].mode == 0o755
+    assert darwin_targets["herdr.config"].validate == ["toml"]
 
     dests = [t.destination for t in darwin_targets.values()]
     assert "~/.config/nvim/init.lua" not in dests

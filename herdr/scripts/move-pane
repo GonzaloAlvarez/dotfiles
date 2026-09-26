@@ -1,0 +1,92 @@
+#!/bin/sh
+set -eu
+
+HERDR="${HERDR_BIN_PATH:-herdr}"
+SOURCE_PANE="${HERDR_ACTIVE_PANE_ID:?HERDR_ACTIVE_PANE_ID is not set}"
+SOURCE_WORKSPACE="${HERDR_ACTIVE_WORKSPACE_ID:-}"
+REQUESTED_WORKSPACE="${1:-}"
+
+command -v jq >/dev/null 2>&1 || {
+    printf 'move-pane: jq is required\n' >&2
+    exit 127
+}
+
+SNAPSHOT=$("$HERDR" api snapshot)
+
+if [ -n "$REQUESTED_WORKSPACE" ]; then
+    # The argument may be an exact workspace label or workspace ID.
+    MATCH_COUNT=$(
+        printf '%s\n' "$SNAPSHOT" |
+            jq -r --arg requested "$REQUESTED_WORKSPACE" '
+                [
+                    .result.snapshot.workspaces[]
+                    | select(
+                        .workspace_id == $requested
+                        or .label == $requested
+                    )
+                ]
+                | length
+            '
+    )
+
+    if [ "$MATCH_COUNT" -ne 1 ]; then
+        printf \
+            'move-pane: expected exactly one workspace matching "%s"; found %s\n' \
+            "$REQUESTED_WORKSPACE" \
+            "$MATCH_COUNT" >&2
+        exit 1
+    fi
+
+    TARGET_WORKSPACE=$(
+        printf '%s\n' "$SNAPSHOT" |
+            jq -er --arg requested "$REQUESTED_WORKSPACE" '
+                .result.snapshot.workspaces[]
+                | select(
+                    .workspace_id == $requested
+                    or .label == $requested
+                )
+                | .workspace_id
+            '
+    )
+else
+    command -v fzf >/dev/null 2>&1 || {
+        printf 'move-pane: fzf is required for interactive selection\n' >&2
+        exit 127
+    }
+
+    TAB=$(printf '\t')
+
+    SELECTION=$(
+        printf '%s\n' "$SNAPSHOT" |
+            jq -r --arg current "$SOURCE_WORKSPACE" '
+                .result.snapshot.workspaces[]
+                | select(.workspace_id != $current)
+                | [
+                    .workspace_id,
+                    .label,
+                    ((.pane_count // 0) | tostring) + " panes"
+                ]
+                | @tsv
+            ' |
+            fzf \
+                --delimiter="$TAB" \
+                --with-nth=2.. \
+                --prompt='Move pane to a new tab in workspace: ' \
+                --height=100% \
+                --layout=reverse \
+                --border
+    ) || exit 0
+
+    TARGET_WORKSPACE=$(printf '%s\n' "$SELECTION" | cut -f1)
+fi
+
+# pane.move returns changed=false when the source tab is zoomed.
+# The destination is new, so there is no destination tab to unzoom.
+"$HERDR" pane zoom "$SOURCE_PANE" --off >/dev/null 2>&1 || true
+
+# Create a brand-new tab in the destination workspace and place the
+# existing running pane inside it as the sole pane.
+exec "$HERDR" pane move "$SOURCE_PANE" \
+    --new-tab \
+    --workspace "$TARGET_WORKSPACE" \
+    --focus

@@ -127,3 +127,16 @@ targets:
     when:
       flavor: [termux]
     validate: [utf8, nonempty]
+
+  - id: herdr.config
+    operation: copy
+    source: herdr/config.toml
+    destination: ~/.config/herdr/config.toml
+    validate: [toml]
+
+  - id: herdr.move_pane
+    operation: copy
+    source: herdr/scripts/move-pane
+    destination: ~/.config/herdr/scripts/move-pane
+    mode: "0755"
+    validate: [utf8, nonempty, executable]

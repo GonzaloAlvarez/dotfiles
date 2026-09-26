@@ -21,6 +21,7 @@ PAYLOAD_DIRS = [
     "vscode",
     "claude",
     "iterm",
+    "herdr",
     "nvim",
     "bundles",
 ]
@@ -88,6 +89,14 @@ def test_parity_with_legacy_outputs(dotfiles_repo, fake_home, monkeypatch):
     statusline = fake_home / ".claude" / "statusline.sh"
     assert statusline.read_bytes() == legacy_copy(dotfiles_repo / "claude" / "statusline.sh")
     assert oct(os.stat(statusline).st_mode & 0o7777) == "0o755"
+
+    herdr_config = fake_home / ".config" / "herdr" / "config.toml"
+    assert herdr_config.read_bytes() == (dotfiles_repo / "herdr" / "config.toml").read_bytes()
+    assert oct(os.stat(herdr_config).st_mode & 0o7777) == "0o644"
+    move_pane = fake_home / ".config" / "herdr" / "scripts" / "move-pane"
+    assert move_pane.read_bytes() == (dotfiles_repo / "herdr" / "scripts" / "move-pane").read_bytes()
+    assert move_pane.read_bytes().startswith(b"#!/bin/sh\n")
+    assert oct(os.stat(move_pane).st_mode & 0o7777) == "0o755"
 
     settings = fake_home / ".claude" / "settings.json"
     expected_statusline = json.loads((dotfiles_repo / "claude" / "settings.json").read_text())[

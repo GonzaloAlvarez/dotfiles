@@ -1,0 +1,22 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+a"
+
+[ui.toast]
+delivery = "herdr"
+
+[theme]
+name = "catppuccin"
+auto_switch = false
+
+[ui]
+status_indicators = "symbols"
+
+[[keys.command]]
+key = "prefix+m"
+type = "popup"
+command = "$HOME/.config/herdr/scripts/move-pane"
+description = "Move focused pane to another workspace"
+width = "70%"
+height = "45%"

@@ -43,7 +43,7 @@ origins (no network).
 
 - `bundles/default.yml` — universal baseline, installed automatically. Sources reference the
   existing top-level payload directories (`bashrc/`, `screenrc/`, `tmux.conf/`, `zshenv/`,
-  `ideavimrc/`, `aider/`, `vscode/`, `claude/`, `iterm/`).
+  `ideavimrc/`, `aider/`, `vscode/`, `claude/`, `iterm/`, `herdr/`).
 - `bundles/<bundle-id>/bundle.yml` + `files/` — optional bundles, installed deliberately
   (first one: `llm.claude.bedrock`, which owns `~/.claude/settings.json#/env` and requires
   `kauket get aws.profile.bedrock` at install time).

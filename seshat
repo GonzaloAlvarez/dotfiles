@@ -19,6 +19,10 @@ SESHAT_DIR = os.path.join(REPO, ".seshat")
 VENV = os.path.join(SESHAT_DIR, "venv")
 VENV_PY = os.path.join(VENV, "bin", "python")
 DEPS = ["Jinja2==3.1.6", "MarkupSafe==3.0.2", "PyYAML==6.0.3"]
+if sys.version_info < (3, 11):
+    # tomllib (behind the `toml` validator) is stdlib only from 3.11; older
+    # interpreters (Raspbian 11 = 3.9) get the API-identical backport.
+    DEPS.append("tomli==2.4.1")
 
 in_venv = hasattr(sys, "real_prefix") or sys.base_prefix != sys.prefix
 
@@ -32,9 +36,13 @@ if not in_venv:
         try:
             import jinja2
             import yaml
+
+            if sys.version_info < (3, 11):
+                import tomli  # noqa: F401
         except ImportError:
             sys.stderr.write(
-                "seshat: offline and Jinja2/PyYAML are not available to the system python; "
+                "seshat: offline and Jinja2/PyYAML (plus tomli on Python < 3.11) are not "
+                "available to the system python; "
                 "connect to the internet and retry\n"
             )
             sys.exit(1)

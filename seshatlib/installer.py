@@ -161,12 +161,24 @@ def _v_yaml(data, staged):
     yaml.safe_load(data.decode("utf-8"))
 
 
-def _v_toml(data, staged):
+def _toml_loads(text):
+    # tomllib is stdlib only from Python 3.11. Older interpreters (Raspbian 11
+    # ships 3.9) get the API-identical tomli backport, which the launcher adds
+    # to its venv on those versions.
     try:
         import tomllib
     except ImportError:
-        raise ValidationError("toml validation requires Python 3.11+")
-    tomllib.loads(data.decode("utf-8"))
+        try:
+            import tomli as tomllib
+        except ImportError:
+            raise ValidationError(
+                "toml validation needs tomllib (Python 3.11+) or the tomli backport"
+            ) from None
+    return tomllib.loads(text)
+
+
+def _v_toml(data, staged):
+    _toml_loads(data.decode("utf-8"))
 
 
 def _v_utf8(data, staged):

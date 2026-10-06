@@ -158,6 +158,11 @@ nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` ther
   exit 2 (blocked) fails provisioning. Amun also removes untouched stock skel/base-files
   copies of `.bashrc`/`.bash_profile` before `./setup` so fresh machines don't block —
   user-modified files still block, by design.
+- **Python floor is 3.9** (Raspbian 11 on `plane.lan`). The `toml` validator uses stdlib
+  `tomllib` on 3.11+ and the API-identical `tomli` backport below that; the launcher pins
+  `tomli` into its venv only on those interpreters. Added 2026-10-06 after `amun update`
+  on plane.lan died with `toml validation requires Python 3.11+` (herdr's `config.toml`).
+  Prove 3.9 compatibility in a `debian:bullseye` container, not on the host.
 - **Pre-Seshat legacy migration** (`seshatlib/legacy.py`, run by `./setup` before the
   launcher, stdlib-only so it needs no venv): machines bootstrapped before the Seshat
   migration carry old config.json-era outputs (combined `.bashrc` etc., and a plain-dir

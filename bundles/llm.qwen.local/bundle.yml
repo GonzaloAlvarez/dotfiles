@@ -5,6 +5,9 @@ description: >
   default (127.0.0.1), or a remote server via --set server_host=<ip|name>.
   Requires gear com/qwen on PATH first: run `qwen --version` once so gear
   lazy-installs it. The server side is the separate bundle localllm.server.
+  A server in router mode offers two model ids: set model2_alias to list the
+  second one too (qwen-code's /model switches between them; the primary
+  model stays model_alias).
 automatic: false
 
 tags:
@@ -45,6 +48,17 @@ variables:
   top_k:
     type: string
     default: "20"
+  # Optional second model id on the same server (empty = single entry).
+  model2_alias:
+    type: string
+    default: ""
+  # Sampling for the second entry (Qwen thinking-mode recommendation).
+  model2_temp:
+    type: string
+    default: "1.0"
+  model2_top_p:
+    type: string
+    default: "0.95"
 
 targets:
   - id: qwen.settings.local

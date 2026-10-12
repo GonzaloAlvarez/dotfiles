@@ -46,7 +46,9 @@ origins (no network).
   `ideavimrc/`, `aider/`, `vscode/`, `claude/`, `iterm/`, `herdr/`).
 - `bundles/<bundle-id>/bundle.yml` + `files/` — optional bundles, installed deliberately
   (first one: `llm.claude.bedrock`, which owns `~/.claude/settings.json#/env` and requires
-  `kauket get aws.profile.bedrock` at install time).
+  `kauket get aws.profile.bedrock` at install time; `localllm.server` renders the gear
+  `localllm` server config — single or two-alias router mode — plus a Linux `systemd --user`
+  unit; `llm.qwen.local` points qwen-code at such a server, optionally listing both model ids).
 - Manifests are strict YAML (unknown fields are errors). Source paths are repo-root-relative.
 
 ### Operations

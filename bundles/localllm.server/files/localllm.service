@@ -1,0 +1,18 @@
+# Managed by seshat (dotfiles bundle localllm.server). Linux only.
+# Enable once per machine:  sudo loginctl enable-linger $USER
+#                           systemctl --user daemon-reload && systemctl --user enable --now localllm
+# `localllm serve` execs llama-server, so the unit's main pid IS the server;
+# the control group reaps router-mode children on stop.
+[Unit]
+Description=localllm llama-server (gear com/localllm; config from seshat bundle localllm.server)
+
+[Service]
+Type=simple
+Environment=PATH=%h/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/bin/localllm serve
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+
+[Install]
+WantedBy=default.target

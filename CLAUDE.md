@@ -155,7 +155,15 @@ nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` ther
   checkout has its own empty state (it will adopt identical files and block on divergent ones).
 - The iTerm dynamic profile (`iterm/Profiles.json` → `~/Library/Application
   Support/iTerm2/DynamicProfiles/BlackBeast.json`) is Seshat-owned; amun's copy task was
-  removed 2026-08-22 (only the osx_defaults default-profile GUID task remains there).
+  removed 2026-08-22. Its GUID was rotated on 2026-10-17 (`D6E08B37-…` → `FB7442CC-…`):
+  Macs bootstrapped before the dynamic profile existed had the legacy `iterm/iTerm - Black
+  Beast.json` imported by hand, leaving a regular saved profile with the old GUID that made
+  iTerm2 reject the dynamic one at every launch ("Dynamic profile with Guid … conflicts with
+  non-dynamic profile with same Guid"). Amun's `roles/dotfiles/tasks/osx_iterm.yml` sets the
+  new GUID as default and runs `iterm_reconcile_profiles.py`, which retires such hand imports
+  only when they still match a repo payload file (identity keys aside) and only while iTerm2 is
+  closed — a GUI-customised copy is kept and reported. Never change this GUID without updating
+  `roles/dotfiles/defaults/main.yml` in amun.
 - Amun treats Seshat exit codes strictly as of 2026-08-22 (`failed_when: false` dropped):
   exit 2 (blocked) fails provisioning. Amun also removes untouched stock skel/base-files
   copies of `.bashrc`/`.bash_profile` before `./setup` so fresh machines don't block —

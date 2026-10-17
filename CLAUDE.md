@@ -161,9 +161,13 @@ nothing touches `/etc`, `/usr`, or system services. Facts report `os=linux` ther
   iTerm2 reject the dynamic one at every launch ("Dynamic profile with Guid … conflicts with
   non-dynamic profile with same Guid"). Amun's `roles/dotfiles/tasks/osx_iterm.yml` sets the
   new GUID as default and runs `iterm_reconcile_profiles.py`, which retires such hand imports
-  only when they still match a repo payload file (identity keys aside) and only while iTerm2 is
-  closed — a GUI-customised copy is kept and reported. Never change this GUID without updating
-  `roles/dotfiles/defaults/main.yml` in amun.
+  only when they still match a repo payload file — current or any version in this repo's git
+  history, identity keys and iTerm2's Sequoia-deprecated key mappings aside — and only while
+  iTerm2 is closed; a GUI-customised copy is kept and reported. Never change this GUID without
+  updating `roles/dotfiles/defaults/main.yml` in amun. Same day the profile's `Keyboard Map`
+  was emptied: all 40 entries were on iTerm2's `DeprecatedProfileKeyMappings.plist` (modern
+  iTerm2 emits those sequences natively) and on macOS 15 every launch asked "A dynamic profile
+  was found with a now-deprecated key mapping … Remove the key mappings?". Keep it empty.
 - Amun treats Seshat exit codes strictly as of 2026-08-22 (`failed_when: false` dropped):
   exit 2 (blocked) fails provisioning. Amun also removes untouched stock skel/base-files
   copies of `.bashrc`/`.bash_profile` before `./setup` so fresh machines don't block —

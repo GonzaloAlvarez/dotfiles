@@ -1,0 +1,83 @@
+schema: 1
+name: llm.client
+description: >
+  Claude Code and qwen-code pointed at the homelab LLM router
+  (cn-llmrouter on kaiser, https://llmrouter.lab.gn.al): one URL on the
+  LAN and on the tailnet, the model catalogue lives in the router, and
+  /model in either CLI picks a row (auto, deepseek-flash, claude-*,
+  qwen-local, qwen-<box>, gpt-5.5). Replaces llm.claude.bedrock (Bedrock
+  is a router row now) and llm.qwen.local (a local llama-server is a
+  router row too; set local_host to keep a DIRECT entry for offline use,
+  e.g. a serving Mac pointing at itself or travelblock on the road).
+  Requires Claude Code and gear com/qwen on PATH first: run
+  `claude --version` and `qwen --version` once. No secret is involved —
+  the router has no API key by design.
+automatic: false
+
+tags:
+  - development
+  - llm
+  - claude
+  - qwen
+
+depends_on:
+  - default
+
+platforms:
+  os: [darwin, linux]
+
+requires:
+  commands:
+    - claude
+    - qwen
+
+variables:
+  # The one address. Tailnet clients resolve it to the VPS traefik-lab (LE);
+  # LAN clients to kaiser traefik-lan (step-ca leaf — trusted via amun's pki
+  # role; Node-based qwen-code needs the bashrc NODE_EXTRA_CA_CERTS export).
+  router_url:
+    type: string
+    default: https://llmrouter.lab.gn.al
+  # Startup model in both CLIs (any catalogue row).
+  default_model:
+    type: string
+    default: auto
+  # Optional DIRECT llama-server entries (bypass the router) for offline use.
+  # Empty local_host renders none.
+  local_host:
+    type: string
+    default: ""
+  local_port:
+    type: string
+    default: "8080"
+  local_alias:
+    type: string
+    default: qwen3.8-27b-code
+  local_alias2:
+    type: string
+    default: qwen3.8-27b-think
+  local_ctx:
+    type: string
+    default: "32768"
+
+targets:
+  - id: claude.settings.router
+    operation: json_merge
+    source: bundles/llm.client/files/claude-settings.json.j2
+    destination: ~/.claude/settings.json
+    template: jinja2
+    owns: [/env, /modelPicker]
+
+  - id: qwen.settings.router
+    operation: json_merge
+    source: bundles/llm.client/files/qwen-settings.json.j2
+    destination: ~/.qwen/settings.json
+    template: jinja2
+    owns: [/modelProviders, /primaryModel, /model, /security]
+
+  - id: qwen.env
+    operation: copy
+    source: bundles/llm.client/files/qwen.env
+    destination: ~/.qwen/.env
+    mode: "0600"
+    validate: [utf8, nonempty]

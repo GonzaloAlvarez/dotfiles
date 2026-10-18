@@ -44,11 +44,14 @@ origins (no network).
 - `bundles/default.yml` — universal baseline, installed automatically. Sources reference the
   existing top-level payload directories (`bashrc/`, `screenrc/`, `tmux.conf/`, `zshenv/`,
   `ideavimrc/`, `aider/`, `vscode/`, `claude/`, `iterm/`, `herdr/`).
-- `bundles/<bundle-id>/bundle.yml` + `files/` — optional bundles, installed deliberately
-  (first one: `llm.claude.bedrock`, which owns `~/.claude/settings.json#/env` and requires
-  `kauket get aws.profile.bedrock` at install time; `localllm.server` renders the gear
-  `localllm` server config — single or two-alias router mode — plus a Linux `systemd --user`
-  unit; `llm.qwen.local` points qwen-code at such a server, optionally listing both model ids).
+- `bundles/<bundle-id>/bundle.yml` + `files/` — optional bundles, installed deliberately:
+  `llm.client` points Claude Code (`~/.claude/settings.json#/env` + `#/modelPicker`) and
+  qwen-code (`~/.qwen/settings.json` + `~/.qwen/.env`) at the homelab LLM router
+  (cn-llmrouter, `https://llmrouter.lab.gn.al`; no secret involved — the router has no key),
+  with optional direct llama-server entries via `--set local_host=…`; it replaced
+  `llm.claude.bedrock` and `llm.qwen.local` on 2026-10-18 (Bedrock and the local servers are
+  router rows now). `localllm.server` renders the gear `localllm` server config — single or
+  two-alias router mode — plus a Linux `systemd --user` unit.
 - Manifests are strict YAML (unknown fields are errors). Source paths are repo-root-relative.
 
 ### Operations

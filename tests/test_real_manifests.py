@@ -9,12 +9,10 @@ LINUX = Facts(os="linux", arch="amd64", user="gonzalo", hostname="pi")
 
 def test_real_bundles_load_and_validate():
     bundles = manifest.load_bundles(REPO)
-    assert set(bundles) == {"default", "llm.claude.bedrock", "llm.qwen.local", "localllm.server"}
+    assert set(bundles) == {"default", "llm.client", "localllm.server"}
     assert bundles["default"].automatic is True
-    assert bundles["llm.claude.bedrock"].automatic is False
-    assert bundles["llm.claude.bedrock"].depends_on == ["default"]
-    assert bundles["llm.qwen.local"].automatic is False
-    assert bundles["llm.qwen.local"].depends_on == ["default"]
+    assert bundles["llm.client"].automatic is False
+    assert bundles["llm.client"].depends_on == ["default"]
     assert bundles["localllm.server"].automatic is False
     assert bundles["localllm.server"].depends_on == ["default"]
 
@@ -79,30 +77,6 @@ def test_real_default_target_coverage():
     assert not any("conky" in (t.source or "") for t in darwin_targets.values())
 
 
-def test_real_qwen_local_bundle_shape():
-    bundles = manifest.load_bundles(REPO)
-    b = bundles["llm.qwen.local"]
-    # client-only: the server side is the separate localllm.server bundle
-    assert b.requires_commands == ["qwen"]
-    assert b.requires_kauket == []
-    assert b.variables["server_host"].default == "127.0.0.1"
-    assert b.variables["model_alias"].default == "qwen3.8-27b-local"
-    assert b.variables["port"].default == "8080"
-    # optional second model id (router-mode servers); empty = one entry
-    assert b.variables["model2_alias"].default == ""
-
-    darwin_targets = {t.id: t for t in manifest.resolve_targets(b, DARWIN)}
-    assert set(darwin_targets) == {"qwen.settings.local", "qwen.env"}
-    assert darwin_targets["qwen.settings.local"].owns == [
-        "/modelProviders", "/primaryModel", "/model", "/security",
-    ]
-    assert darwin_targets["qwen.settings.local"].template is True
-    assert darwin_targets["qwen.env"].mode == 0o600
-
-    # client runs on linux too (remote server topology)
-    linux_targets = {t.id: t for t in manifest.resolve_targets(b, LINUX)}
-    assert set(linux_targets) == {"qwen.settings.local", "qwen.env"}
-
 
 def test_real_localllm_server_bundle_shape():
     bundles = manifest.load_bundles(REPO)
@@ -133,18 +107,6 @@ def test_real_localllm_server_bundle_shape():
     assert linux_targets["localllm.service"].template is False
 
 
-def test_real_bedrock_bundle_shape():
-    bundles = manifest.load_bundles(REPO)
-    b = bundles["llm.claude.bedrock"]
-    assert b.requires_commands == ["claude", "kauket"]
-    assert b.requires_kauket == [{"id": "aws.profile.bedrock", "action": "install"}]
-    assert b.variables["aws_profile"].default == "bedrock"
-    assert b.variables["aws_region"].default == "us-east-2"
-    targets = manifest.resolve_targets(b, DARWIN)
-    assert len(targets) == 1
-    assert targets[0].owns == ["/env"]
-    assert targets[0].template is True
-
 
 def _render_real(bundle_name, rel_source, overrides, facts, home):
     """Render a real bundle template with its declared defaults plus overrides."""
@@ -156,26 +118,6 @@ def _render_real(bundle_name, rel_source, overrides, facts, home):
     ctx = templates.build_context(values, facts, b, home, "test")
     return templates.render((REPO / rel_source).read_bytes(), ctx)
 
-
-def test_real_qwen_local_template_one_or_two_models(tmp_path):
-    import json
-
-    src = "bundles/llm.qwen.local/files/qwen-settings.json.j2"
-    one = json.loads(_render_real("llm.qwen.local", src, {}, LINUX, tmp_path))
-    assert [m["id"] for m in one["modelProviders"]["openai"]] == ["qwen3.8-27b-local"]
-    assert one["primaryModel"] == "qwen3.8-27b-local"
-
-    two = json.loads(_render_real(
-        "llm.qwen.local", src,
-        {"server_host": "travelblock.local", "model_alias": "code", "model2_alias": "think"},
-        LINUX, tmp_path,
-    ))
-    entries = two["modelProviders"]["openai"]
-    assert [m["id"] for m in entries] == ["code", "think"]
-    assert {m["baseUrl"] for m in entries} == {"http://travelblock.local:8080/v1"}
-    assert entries[1]["generationConfig"]["samplingParams"]["temperature"] == 1.0
-    assert two["primaryModel"] == "code"
-    assert two["model"]["name"] == "code"
 
 
 def test_real_localllm_config_template_router_keys(tmp_path):
@@ -195,3 +137,102 @@ def test_real_localllm_config_template_router_keys(tmp_path):
     assert "MODEL2_ALIAS=qwen3.8-27b-think\n" in router
     # JSON values keep their double quotes: the line is single-quoted for bash
     assert "MODEL_ARGS='chat-template-kwargs={\"enable_thinking\":false} temp=0.7'\n" in router
+
+
+def test_real_llm_client_bundle_shape():
+    bundles = manifest.load_bundles(REPO)
+    b = bundles["llm.client"]
+    # client-only, secret-free: the router has no API key by design
+    assert b.requires_commands == ["claude", "qwen"]
+    assert b.requires_kauket == []
+    assert b.variables["router_url"].default == "https://llmrouter.lab.gn.al"
+    assert b.variables["default_model"].default == "auto"
+    # direct llama-server entries are opt-in (offline use)
+    assert b.variables["local_host"].default == ""
+    assert b.variables["local_alias"].default == "qwen3.8-27b-code"
+    assert b.variables["local_alias2"].default == "qwen3.8-27b-think"
+
+    for facts in (DARWIN, LINUX):
+        targets = {t.id: t for t in manifest.resolve_targets(b, facts)}
+        assert set(targets) == {"claude.settings.router", "qwen.settings.router", "qwen.env"}
+        assert targets["claude.settings.router"].owns == ["/env", "/modelPicker"]
+        assert targets["claude.settings.router"].template is True
+        assert targets["qwen.settings.router"].owns == [
+            "/modelProviders", "/primaryModel", "/model", "/security",
+        ]
+        assert targets["qwen.settings.router"].template is True
+        assert targets["qwen.env"].mode == 0o600
+
+
+def test_real_llm_client_claude_template(tmp_path):
+    import json
+
+    src = "bundles/llm.client/files/claude-settings.json.j2"
+    doc = json.loads(_render_real("llm.client", src, {}, LINUX, tmp_path))
+    # rendered keys must equal `owns` exactly (installer rule)
+    assert set(doc) == {"env", "modelPicker"}
+    env = doc["env"]
+    assert env["ANTHROPIC_BASE_URL"] == "https://llmrouter.lab.gn.al"
+    assert env["ANTHROPIC_AUTH_TOKEN"] == "open"
+    assert env["ANTHROPIC_API_KEY"] == ""          # blank keeps Claude Code on the gateway
+    assert env["ANTHROPIC_MODEL"] == "auto"
+    assert env["CLAUDE_CODE_GATEWAY_HINT_HEADERS"] == "1"
+    picker = doc["modelPicker"]
+    assert picker["replaceBuiltInOptions"] is True
+    ids = [o["model"] for o in picker["options"]]
+    assert ids[0] == "auto"
+    for m in ("deepseek-flash", "claude-opus", "claude-sonnet", "qwen-local",
+              "qwen-klaus", "qwen-minerva", "qwen-travelblock", "gpt-5.5"):
+        assert m in ids, m
+    assert all(o["label"] for o in picker["options"])
+
+    other = json.loads(_render_real(
+        "llm.client", src,
+        {"router_url": "http://10.1.1.140:4000", "default_model": "deepseek-flash"},
+        DARWIN, tmp_path,
+    ))
+    assert other["env"]["ANTHROPIC_BASE_URL"] == "http://10.1.1.140:4000"
+    assert other["env"]["ANTHROPIC_MODEL"] == "deepseek-flash"
+
+
+def test_real_llm_client_qwen_template(tmp_path):
+    import json
+
+    src = "bundles/llm.client/files/qwen-settings.json.j2"
+    doc = json.loads(_render_real("llm.client", src, {}, LINUX, tmp_path))
+    assert set(doc) == {"modelProviders", "primaryModel", "model", "security"}
+    entries = doc["modelProviders"]["openai"]
+    ids = [m["id"] for m in entries]
+    assert ids[:3] == ["auto", "auto-claude", "deepseek-flash"]
+    for m in ("qwen-local", "qwen-think", "qwen-klaus", "qwen-minerva", "qwen-travelblock",
+              "qwen-travelblock-think", "claude-opus", "claude-haiku", "gpt-5.5"):
+        assert m in ids, m
+    assert {m["baseUrl"] for m in entries} == {"https://llmrouter.lab.gn.al/v1"}
+    assert {m["envKey"] for m in entries} == {"LLM_ROUTER_API_KEY"}
+    by_id = {m["id"]: m for m in entries}
+    assert by_id["deepseek-flash"]["generationConfig"]["contextWindowSize"] == 1000000
+    assert by_id["qwen-klaus"]["generationConfig"]["contextWindowSize"] == 65536
+    assert by_id["qwen-minerva"]["generationConfig"]["contextWindowSize"] == 32768
+    assert doc["primaryModel"] == "auto"
+    assert doc["model"] == {"name": "auto", "baseUrl": "https://llmrouter.lab.gn.al/v1"}
+    assert doc["security"]["auth"]["selectedType"] == "openai"
+
+    # local_host adds DIRECT entries (code + think) after the router rows
+    direct = json.loads(_render_real(
+        "llm.client", src,
+        {"local_host": "127.0.0.1", "default_model": "qwen3.8-27b-code"},
+        DARWIN, tmp_path,
+    ))
+    d_entries = [m for m in direct["modelProviders"]["openai"] if m["envKey"] == "LOCAL_LLAMA_API_KEY"]
+    assert [m["id"] for m in d_entries] == ["qwen3.8-27b-code", "qwen3.8-27b-think"]
+    assert {m["baseUrl"] for m in d_entries} == {"http://127.0.0.1:8080/v1"}
+    assert d_entries[0]["generationConfig"]["samplingParams"]["temperature"] == 0.7
+    assert d_entries[1]["generationConfig"]["samplingParams"]["temperature"] == 1.0
+    assert direct["primaryModel"] == "qwen3.8-27b-code"
+
+    one = json.loads(_render_real(
+        "llm.client", src, {"local_host": "travelblock.local", "local_alias2": ""}, LINUX, tmp_path,
+    ))
+    o_entries = [m for m in one["modelProviders"]["openai"] if m["envKey"] == "LOCAL_LLAMA_API_KEY"]
+    assert [m["id"] for m in o_entries] == ["qwen3.8-27b-code"]
+    assert o_entries[0]["baseUrl"] == "http://travelblock.local:8080/v1"

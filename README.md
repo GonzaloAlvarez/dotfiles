@@ -21,13 +21,14 @@ you changed locally.
 
 ```console
 seshat list                          # every bundle and its state
-seshat install llm.claude.bedrock    # configure Claude Code for AWS Bedrock
-seshat list llm.claude.bedrock       # per-target ownership detail
-seshat remove llm.claude.bedrock     # remove it, restoring default-owned content
+seshat install llm.client            # Claude Code + qwen-code → the homelab LLM router
+seshat install llm.client --set local_host=127.0.0.1   # … plus direct entries for this machine's llama-server
+seshat list llm.client               # per-target ownership detail
+seshat remove llm.client             # remove it, restoring default-owned content
 ```
 
 A later `./setup` never overwrites optional-bundle configuration: `~/.claude/settings.json#/env`
-stays owned by `llm.claude.bedrock` while `#/statusLine` follows the default bundle.
+stays owned by `llm.client` while `#/statusLine` follows the default bundle.
 
 ## Layout
 

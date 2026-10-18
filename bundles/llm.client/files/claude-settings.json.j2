@@ -1,0 +1,25 @@
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": {{ vars.router_url | tojson }},
+    "ANTHROPIC_AUTH_TOKEN": "open",
+    "ANTHROPIC_API_KEY": "",
+    "ANTHROPIC_MODEL": {{ vars.default_model | tojson }},
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-flash",
+    "CLAUDE_CODE_GATEWAY_HINT_HEADERS": "1",
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"
+  },
+  "modelPicker": {
+    "options": [
+      { "model": "auto",             "label": "Auto: local Qwen for easy turns, DeepSeek 4.1 Flash for hard ones" },
+      { "model": "deepseek-flash",   "label": "DeepSeek 4.1 Flash (Fireworks)" },
+      { "model": "claude-opus",      "label": "Claude Opus (Bedrock)" },
+      { "model": "claude-sonnet",    "label": "Claude Sonnet (Bedrock)" },
+      { "model": "qwen-local",       "label": "Qwen3.8-27B on the first local box that is up" },
+      { "model": "qwen-klaus",       "label": "Qwen3.8-27B on klaus" },
+      { "model": "qwen-minerva",     "label": "Qwen3.8-27B on minerva" },
+      { "model": "qwen-travelblock", "label": "Qwen3.8-27B on travelblock" },
+      { "model": "gpt-5.5",          "label": "GPT-5.5 (Bedrock)" }
+    ],
+    "replaceBuiltInOptions": true
+  }
+}

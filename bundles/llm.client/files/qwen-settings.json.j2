@@ -1,0 +1,75 @@
+{%- set router = vars.router_url ~ "/v1" -%}
+{#- id, context window, max_tokens — mirrors cn-llmrouter/config.yaml -#}
+{%- set rows = [
+  ["auto",                   32768,   8192],
+  ["auto-claude",            32768,   8192],
+  ["deepseek-flash",         1000000, 32768],
+  ["qwen-local",             32768,   8192],
+  ["qwen-think",             32768,   8192],
+  ["qwen-klaus",             65536,   8192],
+  ["qwen-klaus-think",       65536,   8192],
+  ["qwen-minerva",           32768,   8192],
+  ["qwen-minerva-think",     32768,   8192],
+  ["qwen-travelblock",       32768,   8192],
+  ["qwen-travelblock-think", 32768,   8192],
+  ["claude-opus",            200000,  32000],
+  ["claude-sonnet",          200000,  32000],
+  ["claude-haiku",           200000,  8192],
+  ["gpt-5.5",                200000,  32000]
+] -%}
+{
+  "modelProviders": {
+    "openai": [
+{%- for row in rows %}
+      {
+        "id": {{ row[0] | tojson }},
+        "name": {{ row[0] | tojson }},
+        "envKey": "LLM_ROUTER_API_KEY",
+        "baseUrl": {{ router | tojson }},
+        "generationConfig": {
+          "timeout": 900000,
+          "maxRetries": 1,
+          "contextWindowSize": {{ row[1] }},
+          "samplingParams": { "max_tokens": {{ row[2] }} }
+        }
+      }{% if not loop.last or vars.local_host %},{% endif %}
+{%- endfor %}
+{%- if vars.local_host %}
+      {
+        "id": {{ vars.local_alias | tojson }},
+        "name": {{ (vars.local_alias ~ " (direct " ~ vars.local_host ~ ")") | tojson }},
+        "envKey": "LOCAL_LLAMA_API_KEY",
+        "baseUrl": "http://{{ vars.local_host }}:{{ vars.local_port }}/v1",
+        "generationConfig": {
+          "timeout": 900000,
+          "maxRetries": 1,
+          "contextWindowSize": {{ vars.local_ctx }},
+          "samplingParams": { "temperature": 0.7, "top_p": 0.8, "top_k": 20, "max_tokens": 8192 }
+        }
+      }{% if vars.local_alias2 %},
+      {
+        "id": {{ vars.local_alias2 | tojson }},
+        "name": {{ (vars.local_alias2 ~ " (direct " ~ vars.local_host ~ ")") | tojson }},
+        "envKey": "LOCAL_LLAMA_API_KEY",
+        "baseUrl": "http://{{ vars.local_host }}:{{ vars.local_port }}/v1",
+        "generationConfig": {
+          "timeout": 900000,
+          "maxRetries": 1,
+          "contextWindowSize": {{ vars.local_ctx }},
+          "samplingParams": { "temperature": 1.0, "top_p": 0.95, "top_k": 20, "max_tokens": 8192 }
+        }
+      }{% endif %}
+{%- endif %}
+    ]
+  },
+  "primaryModel": {{ vars.default_model | tojson }},
+  "model": {
+    "name": {{ vars.default_model | tojson }},
+    "baseUrl": {{ router | tojson }}
+  },
+  "security": {
+    "auth": {
+      "selectedType": "openai"
+    }
+  }
+}

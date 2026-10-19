@@ -184,7 +184,13 @@ def test_real_llm_client_claude_template(tmp_path):
     for m in ("deepseek-flash", "claude-opus", "claude-sonnet", "qwen-local",
               "qwen-klaus", "qwen-minerva", "qwen-travelblock", "gpt-5.5"):
         assert m in ids, m
-    assert all(o["label"] for o in picker["options"])
+    assert all(o["label"] and o["description"] for o in picker["options"])
+    by_model = {o["model"]: o for o in picker["options"]}
+    # Claude rows inherit a known model's capabilities; gateway-only rows must not
+    assert by_model["claude-opus"]["behavesAs"] == "claude-opus-4-8"
+    assert by_model["claude-sonnet"]["behavesAs"] == "claude-sonnet-4-6"
+    assert "behavesAs" not in by_model["deepseek-flash"]
+    assert env["CLAUDE_CODE_MAX_CONTEXT_TOKENS"] == "200000"
 
     other = json.loads(_render_real(
         "llm.client", src,

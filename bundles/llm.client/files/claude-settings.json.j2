@@ -6,19 +6,21 @@
     "ANTHROPIC_MODEL": {{ vars.default_model | tojson }},
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-flash",
     "CLAUDE_CODE_GATEWAY_HINT_HEADERS": "1",
-    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+    "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "200000",
+    "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
   },
   "modelPicker": {
     "options": [
-      { "model": "auto",             "label": "Auto: local Qwen for easy turns, DeepSeek 4.1 Flash for hard ones" },
-      { "model": "deepseek-flash",   "label": "DeepSeek 4.1 Flash (Fireworks)" },
-      { "model": "claude-opus",      "label": "Claude Opus (Bedrock)" },
-      { "model": "claude-sonnet",    "label": "Claude Sonnet (Bedrock)" },
-      { "model": "qwen-local",       "label": "Qwen3.8-27B on the first local box that is up" },
-      { "model": "qwen-klaus",       "label": "Qwen3.8-27B on klaus" },
-      { "model": "qwen-minerva",     "label": "Qwen3.8-27B on minerva" },
-      { "model": "qwen-travelblock", "label": "Qwen3.8-27B on travelblock" },
-      { "model": "gpt-5.5",          "label": "GPT-5.5 (Bedrock)" }
+      { "model": "auto",             "label": "Auto",                    "description": "local Qwen for easy turns, DeepSeek 4.1 Flash for hard ones; pinned per session" },
+      { "model": "deepseek-flash",   "label": "DeepSeek 4.1 Flash",      "description": "Fireworks, 1M context, cheapest strong model" },
+      { "model": "claude-opus",      "label": "Claude Opus (Bedrock)",   "description": "us.anthropic.claude-opus-5 via the router", "behavesAs": "claude-opus-4-8" },
+      { "model": "claude-sonnet",    "label": "Claude Sonnet (Bedrock)", "description": "us.anthropic.claude-sonnet-5 via the router", "behavesAs": "claude-sonnet-4-6" },
+      { "model": "qwen-local",       "label": "Qwen3.8-27B (local pool)", "description": "first local box that is up: minerva, klaus, travelblock" },
+      { "model": "qwen-klaus",       "label": "Qwen3.8-27B on klaus",    "description": "64k context, MTP; on demand" },
+      { "model": "qwen-minerva",     "label": "Qwen3.8-27B on minerva",  "description": "32k context; usually serving" },
+      { "model": "qwen-travelblock", "label": "Qwen3.8-27B on travelblock", "description": "32k context; always on at home, roams" },
+      { "model": "gpt-5.5",          "label": "GPT-5.5 (Bedrock)",       "description": "native Chat Completions on bedrock-runtime" }
     ],
     "replaceBuiltInOptions": true
   }

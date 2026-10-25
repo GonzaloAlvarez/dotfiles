@@ -182,7 +182,8 @@ def test_real_llm_client_claude_template(tmp_path):
     ids = [o["model"] for o in picker["options"]]
     assert ids[0] == "auto"
     for m in ("deepseek-flash", "claude-opus", "claude-sonnet", "qwen-local",
-              "qwen-klaus", "qwen-minerva", "qwen-travelblock", "gpt-5.5"):
+              "qwen-klaus", "qwen-minerva", "qwen-travelblock", "gpt-5.5",
+              "nova-2-lite", "nova-pro"):
         assert m in ids, m
     assert all(o["label"] and o["description"] for o in picker["options"])
     by_model = {o["model"]: o for o in picker["options"]}
@@ -190,6 +191,7 @@ def test_real_llm_client_claude_template(tmp_path):
     assert by_model["claude-opus"]["behavesAs"] == "claude-opus-4-8"
     assert by_model["claude-sonnet"]["behavesAs"] == "claude-sonnet-4-6"
     assert "behavesAs" not in by_model["deepseek-flash"]
+    assert "behavesAs" not in by_model["nova-2-lite"]
     assert env["CLAUDE_CODE_MAX_CONTEXT_TOKENS"] == "200000"
 
     other = json.loads(_render_real(
@@ -211,7 +213,8 @@ def test_real_llm_client_qwen_template(tmp_path):
     ids = [m["id"] for m in entries]
     assert ids[:3] == ["auto", "auto-claude", "deepseek-flash"]
     for m in ("qwen-local", "qwen-think", "qwen-klaus", "qwen-minerva", "qwen-travelblock",
-              "qwen-travelblock-think", "claude-opus", "claude-haiku", "gpt-5.5"):
+              "qwen-travelblock-think", "claude-opus", "claude-haiku", "gpt-5.5",
+              "nova-2-lite", "nova-micro"):
         assert m in ids, m
     assert {m["baseUrl"] for m in entries} == {"https://llmrouter.lab.gn.al/v1"}
     assert {m["envKey"] for m in entries} == {"LLM_ROUTER_API_KEY"}
@@ -219,6 +222,7 @@ def test_real_llm_client_qwen_template(tmp_path):
     assert by_id["deepseek-flash"]["generationConfig"]["contextWindowSize"] == 1000000
     assert by_id["qwen-klaus"]["generationConfig"]["contextWindowSize"] == 65536
     assert by_id["qwen-minerva"]["generationConfig"]["contextWindowSize"] == 32768
+    assert by_id["nova-2-lite"]["generationConfig"]["contextWindowSize"] == 1000000
     assert doc["primaryModel"] == "auto"
     assert doc["model"] == {"name": "auto", "baseUrl": "https://llmrouter.lab.gn.al/v1"}
     assert doc["security"]["auth"]["selectedType"] == "openai"

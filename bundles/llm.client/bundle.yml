@@ -5,7 +5,7 @@ description: >
   (cn-llmrouter on kaiser, https://llmrouter.lab.gn.al): one URL on the
   LAN and on the tailnet, the model catalogue lives in the router, and
   /model in either CLI picks a row (auto, deepseek-flash, claude-*,
-  qwen-local, qwen-<box>, gpt-5.5). Replaces llm.claude.bedrock (Bedrock
+  qwen-local, qwen-<box>, gpt-5.5, nova-*). Replaces llm.claude.bedrock (Bedrock
   is a router row now) and llm.qwen.local (a local llama-server is a
   router row too; set local_host to keep a DIRECT entry for offline use,
   e.g. a serving Mac pointing at itself or travelblock on the road).

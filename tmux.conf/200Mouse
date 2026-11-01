@@ -1,0 +1,7 @@
+# tmux 3.8 flipped the default of `mouse` to on. With it on, iTerm2 hands
+# every drag and right-click to tmux: selections turn yellow (tmux copy
+# mode), vanish on release, never reach the macOS clipboard, and the
+# right-click menu is tmux's instead of iTerm2's. Keep the pre-3.8
+# behavior so iTerm2 owns selection and copy. Hold Option while dragging
+# to bypass tmux if mouse mode is ever turned back on.
+set -g mouse off

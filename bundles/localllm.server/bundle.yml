@@ -38,9 +38,13 @@ variables:
   model_file:
     type: string
     default: Qwen3.8-27B-UD-Q6_K.gguf
+  # Unsloth "Dynamic 3.1" re-cut of 2026-11-10/11 (same file name, new digest;
+  # the August UD3.0 file was c9c206812fbe…cd436). `localllm pull` keeps a file
+  # that is already present: to upgrade a box, move the old GGUF aside, set
+  # this digest (or re-install the bundle), pull, then restart `localllm serve`.
   model_sha256:
     type: string
-    default: c9c206812fbe4ac7b76a729e25928b63f2ae89d37f69da7a71c20aec763cd436
+    default: 6cac55f876015d6d4b94b1656d23f79f424ac9b583652aedf0633dba116576a8
   model_alias:
     type: string
     default: qwen3.8-27b-local

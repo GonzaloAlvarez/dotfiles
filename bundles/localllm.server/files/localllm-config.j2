@@ -15,17 +15,30 @@ FLASH_ATTN=on
 KV_QUANT={{ vars.kv_quant }}
 SPEC_TYPE={{ vars.spec_type }}
 EXTRA_ARGS=
-# Router mode (two model ids from one llama-server) is on when MODEL2_ALIAS
-# is set; MODEL2_FILE empty = the same GGUF under both aliases. MODEL_ARGS /
-# MODEL2_ARGS hold that alias' llama-server options as space-separated
-# key=value tokens (long flag names without dashes); single-quoted because
-# JSON values such as chat-template-kwargs carry double quotes.
+# Router mode (up to three model ids from one llama-server) is on when
+# MODEL2_ALIAS or MODEL3_ALIAS is set; an empty MODEL2_FILE/MODEL3_FILE = slot
+# 1's GGUF under another alias. MODEL_ARGS / MODEL2_ARGS / MODEL3_ARGS hold that
+# alias' llama-server options as space-separated key=value tokens (long flag
+# names without dashes); single-quoted because JSON values such as
+# chat-template-kwargs carry double quotes. MODEL*_MMPROJ_FILE = vision
+# projector for that slot (pulled from the slot's repo, served with --mmproj).
 MODEL2_HF_REPO={{ vars.model2_hf_repo }}
 MODEL2_FILE={{ vars.model2_file }}
 MODEL2_SHA256={{ vars.model2_sha256 }}
 MODEL2_ALIAS={{ vars.model2_alias }}
+MODEL3_HF_REPO={{ vars.model3_hf_repo }}
+MODEL3_FILE={{ vars.model3_file }}
+MODEL3_SHA256={{ vars.model3_sha256 }}
+MODEL3_ALIAS={{ vars.model3_alias }}
 MODEL_ARGS='{{ vars.model_args }}'
 MODEL2_ARGS='{{ vars.model2_args }}'
+MODEL3_ARGS='{{ vars.model3_args }}'
+MODEL_MMPROJ_FILE={{ vars.model_mmproj_file }}
+MODEL_MMPROJ_SHA256={{ vars.model_mmproj_sha256 }}
+MODEL2_MMPROJ_FILE={{ vars.model2_mmproj_file }}
+MODEL2_MMPROJ_SHA256={{ vars.model2_mmproj_sha256 }}
+MODEL3_MMPROJ_FILE={{ vars.model3_mmproj_file }}
+MODEL3_MMPROJ_SHA256={{ vars.model3_mmproj_sha256 }}
 SERVER_ENV='{{ vars.server_env }}'
 SLEEP_IDLE={{ vars.sleep_idle }}
 MODELS_MAX={{ vars.models_max }}

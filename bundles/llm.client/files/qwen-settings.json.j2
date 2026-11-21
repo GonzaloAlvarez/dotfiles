@@ -8,6 +8,7 @@
   ["qwen-think",             32768,   8192],
   ["qwen-klaus",             65536,   8192],
   ["qwen-klaus-think",       65536,   8192],
+  ["inkling-klaus",          65536,   8192],
   ["qwen-minerva",           32768,   8192],
   ["qwen-minerva-think",     32768,   8192],
   ["qwen-travelblock",       32768,   8192],
@@ -61,6 +62,18 @@
           "maxRetries": 1,
           "contextWindowSize": {{ vars.local_ctx }},
           "samplingParams": { "temperature": 1.0, "top_p": 0.95, "top_k": 20, "max_tokens": 8192 }
+        }
+      }{% endif %}{% if vars.local_alias3 %},
+      {
+        "id": {{ vars.local_alias3 | tojson }},
+        "name": {{ (vars.local_alias3 ~ " (direct " ~ vars.local_host ~ ")") | tojson }},
+        "envKey": "LOCAL_LLAMA_API_KEY",
+        "baseUrl": "http://{{ vars.local_host }}:{{ vars.local_port }}/v1",
+        "generationConfig": {
+          "timeout": 900000,
+          "maxRetries": 1,
+          "contextWindowSize": {{ vars.local_ctx }},
+          "samplingParams": { "temperature": 1.0, "top_p": 1.0, "max_tokens": 8192 }
         }
       }{% endif %}
 {%- endif %}

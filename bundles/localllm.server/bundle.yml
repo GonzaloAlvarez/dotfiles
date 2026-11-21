@@ -6,11 +6,13 @@ description: >
   `localllm --version` once so gear lazy-installs it. Bind 127.0.0.1 serves
   this machine only; --set bind=0.0.0.0 serves remote clients (see the
   client bundle llm.qwen.local and its server_host variable). Setting
-  model2_alias switches the wrapper to llama-server ROUTER mode: two model
-  ids from one process — the same GGUF under both aliases with different
-  per-alias options when model2_file is empty, or a second GGUF. Per-alias
-  llama-server options go in model_args / model2_args as space-separated
-  key=value tokens (long flag names, no dashes). On Linux the bundle also
+  model2_alias (or model3_alias) switches the wrapper to llama-server ROUTER
+  mode: up to three model ids from one process — slot 1's GGUF under another
+  alias with different options when model2_file/model3_file is empty, or
+  their own GGUF. Per-alias llama-server options go in model_args /
+  model2_args / model3_args as space-separated key=value tokens (long flag
+  names, no dashes). model*_mmproj_file names a vision projector GGUF from
+  the slot's repo (pulled and served with --mmproj). On Linux the bundle also
   installs a systemd --user unit; enable it by hand with
   `systemctl --user enable --now localllm` (+ `sudo loginctl enable-linger`).
 automatic: false
@@ -91,6 +93,45 @@ variables:
     type: string
     default: ""
   model2_args:
+    type: string
+    default: ""
+  # Slot 3 (router mode; only pulled/served when model3_alias is set), e.g.
+  # Inkling 2 Mini next to the two Qwen aliases on klaus. Put spec-type=none
+  # in model3_args when the box runs spec_type=draft-mtp and this model has
+  # no MTP head.
+  model3_hf_repo:
+    type: string
+    default: ""
+  model3_file:
+    type: string
+    default: ""
+  model3_sha256:
+    type: string
+    default: ""
+  model3_alias:
+    type: string
+    default: ""
+  model3_args:
+    type: string
+    default: ""
+  # Optional vision projector per slot (file name in that slot's HF repo +
+  # its sha256); empty = text only (single mode passes --no-mmproj).
+  model_mmproj_file:
+    type: string
+    default: ""
+  model_mmproj_sha256:
+    type: string
+    default: ""
+  model2_mmproj_file:
+    type: string
+    default: ""
+  model2_mmproj_sha256:
+    type: string
+    default: ""
+  model3_mmproj_file:
+    type: string
+    default: ""
+  model3_mmproj_sha256:
     type: string
     default: ""
   # Space-separated NAME=VALUE pairs exported before llama-server starts,

@@ -246,3 +246,59 @@ def test_real_llm_client_qwen_template(tmp_path):
     o_entries = [m for m in one["modelProviders"]["openai"] if m["envKey"] == "LOCAL_LLAMA_API_KEY"]
     assert [m["id"] for m in o_entries] == ["qwen3.8-27b-code"]
     assert o_entries[0]["baseUrl"] == "http://travelblock.local:8080/v1"
+
+
+def test_real_localllm_server_slot3_and_mmproj_defaults():
+    bundles = manifest.load_bundles(REPO)
+    b = bundles["localllm.server"]
+    # slot 3 and the projectors are opt-in; defaults change nothing on existing boxes
+    for name in ("model3_hf_repo", "model3_file", "model3_sha256", "model3_alias", "model3_args",
+                 "model_mmproj_file", "model_mmproj_sha256", "model2_mmproj_file",
+                 "model2_mmproj_sha256", "model3_mmproj_file", "model3_mmproj_sha256"):
+        assert b.variables[name].default == ""
+
+
+def test_real_localllm_config_template_slot3(tmp_path):
+    src = "bundles/localllm.server/files/localllm-config.j2"
+    single = _render_real("localllm.server", src, {}, DARWIN, tmp_path).decode()
+    assert "MODEL3_ALIAS=\n" in single
+    assert "MODEL3_ARGS=''\n" in single
+    assert "MODEL3_MMPROJ_FILE=\n" in single
+
+    three = _render_real(
+        "localllm.server", src,
+        {"model2_alias": "qwen3.8-27b-think",
+         "model3_hf_repo": "ggml-org/Inkling-2-Mini-GGUF",
+         "model3_file": "Inkling-2-Mini-IQ4_NL.gguf",
+         "model3_alias": "inkling-2-mini",
+         "model3_mmproj_file": "mmproj-Inkling-2-Mini-Q8_0.gguf",
+         "model3_args": "spec-type=none reasoning-effort=low temp=1.0 top-p=1.0 top-k=0 min-p=0"},
+        DARWIN, tmp_path,
+    ).decode()
+    assert "MODEL3_HF_REPO=ggml-org/Inkling-2-Mini-GGUF\n" in three
+    assert "MODEL3_FILE=Inkling-2-Mini-IQ4_NL.gguf\n" in three
+    assert "MODEL3_ALIAS=inkling-2-mini\n" in three
+    assert "MODEL3_MMPROJ_FILE=mmproj-Inkling-2-Mini-Q8_0.gguf\n" in three
+    assert "MODEL3_ARGS='spec-type=none reasoning-effort=low temp=1.0 top-p=1.0 top-k=0 min-p=0'\n" in three
+
+
+def test_real_llm_client_inkling_rows_and_third_direct_alias(tmp_path):
+    import json
+
+    bundles = manifest.load_bundles(REPO)
+    assert bundles["llm.client"].variables["local_alias3"].default == ""
+
+    claude = json.loads(_render_real("llm.client", "bundles/llm.client/files/claude-settings.json.j2", {}, LINUX, tmp_path))
+    assert "inkling-klaus" in [o["model"] for o in claude["modelPicker"]["options"]]
+
+    qsrc = "bundles/llm.client/files/qwen-settings.json.j2"
+    qwen = json.loads(_render_real("llm.client", qsrc, {}, LINUX, tmp_path))
+    ids = [p["id"] for p in qwen["modelProviders"]["openai"]]
+    assert "inkling-klaus" in ids and "inkling-2-mini" not in ids
+
+    direct = json.loads(_render_real(
+        "llm.client", qsrc,
+        {"local_host": "127.0.0.1", "local_alias3": "inkling-2-mini"}, DARWIN, tmp_path))
+    ids = [p["id"] for p in direct["modelProviders"]["openai"]]
+    assert ids[-3:] == ["qwen3.8-27b-code", "qwen3.8-27b-think", "inkling-2-mini"]
+    assert direct["modelProviders"]["openai"][-1]["baseUrl"] == "http://127.0.0.1:8080/v1"

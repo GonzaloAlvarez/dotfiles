@@ -154,7 +154,11 @@ def test_real_llm_client_bundle_shape():
 
     for facts in (DARWIN, LINUX):
         targets = {t.id: t for t in manifest.resolve_targets(b, facts)}
-        assert set(targets) == {"claude.settings.router", "qwen.settings.router", "qwen.env"}
+        assert set(targets) == {"claude.settings.router", "qwen.settings.router", "qwen.env", "opencode.config"}
+        assert targets["opencode.config"].owns == [
+            "/autoupdate", "/share", "/model", "/small_model", "/provider",
+        ]
+        assert targets["opencode.config"].template is True
         assert targets["claude.settings.router"].owns == ["/env", "/modelPicker"]
         assert targets["claude.settings.router"].template is True
         assert targets["qwen.settings.router"].owns == [
@@ -302,3 +306,35 @@ def test_real_llm_client_inkling_rows_and_third_direct_alias(tmp_path):
     ids = [p["id"] for p in direct["modelProviders"]["openai"]]
     assert ids[-3:] == ["qwen3.8-27b-code", "qwen3.8-27b-think", "inkling-2-mini"]
     assert direct["modelProviders"]["openai"][-1]["baseUrl"] == "http://127.0.0.1:8080/v1"
+
+
+def test_real_llm_client_opencode_template(tmp_path):
+    import json
+
+    src = "bundles/llm.client/files/opencode.json.j2"
+    doc = json.loads(_render_real("llm.client", src, {}, LINUX, tmp_path))
+    # rendered keys must equal `owns` exactly (installer rule)
+    assert set(doc) == {"autoupdate", "share", "model", "small_model", "provider"}
+    assert doc["autoupdate"] is False and doc["share"] == "disabled"
+    assert doc["model"] == "llmrouter/auto"
+    assert doc["small_model"] == "llmrouter/deepseek-flash"
+    assert set(doc["provider"]) == {"llmrouter"}
+    r = doc["provider"]["llmrouter"]
+    assert r["npm"] == "@ai-sdk/openai-compatible"
+    assert r["options"]["baseURL"] == "https://llmrouter.lab.gn.al/v1"
+    models = r["models"]
+    for row in ("auto", "deepseek-flash", "qwen-klaus", "inkling-klaus", "claude-sonnet", "nova-micro"):
+        assert models[row]["tool_call"] is True
+    assert models["qwen-klaus"]["limit"] == {"context": 65536, "output": 8192}
+    assert models["inkling-klaus"]["attachment"] is True and models["inkling-klaus"]["reasoning"] is True
+    assert models["qwen-klaus"]["reasoning"] is False
+
+    direct = json.loads(_render_real(
+        "llm.client", src,
+        {"local_host": "127.0.0.1", "local_alias3": "inkling-2-mini", "default_model": "qwen-klaus"},
+        DARWIN, tmp_path))
+    assert direct["model"] == "llmrouter/qwen-klaus"
+    local = direct["provider"]["local"]
+    assert local["options"]["baseURL"] == "http://127.0.0.1:8080/v1"
+    assert list(local["models"]) == ["qwen3.8-27b-code", "qwen3.8-27b-think", "inkling-2-mini"]
+    assert local["models"]["qwen3.8-27b-code"]["limit"]["context"] == 32768

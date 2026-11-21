@@ -1,11 +1,14 @@
 schema: 1
 name: llm.client
 description: >
-  Claude Code and qwen-code pointed at the homelab LLM router
+  Claude Code, qwen-code and OpenCode pointed at the homelab LLM router
   (cn-llmrouter on kaiser, https://llmrouter.lab.gn.al): one URL on the
   LAN and on the tailnet, the model catalogue lives in the router, and
-  /model in either CLI picks a row (auto, deepseek-flash, claude-*,
-  qwen-local, qwen-<box>, inkling-<box>, gpt-5.5, nova-*). Replaces llm.claude.bedrock (Bedrock
+  /model in any of the CLIs picks a row (auto, deepseek-flash, claude-*,
+  qwen-local, qwen-<box>, inkling-<box>, gpt-5.5, nova-*). The OpenCode
+  config (~/.config/opencode/opencode.json, provider "llmrouter") is
+  rendered on every machine like the herdr config: inert until gear
+  com/opencode is installed (`opencode --version`). Replaces llm.claude.bedrock (Bedrock
   is a router row now) and llm.qwen.local (a local llama-server is a
   router row too; set local_host to keep a DIRECT entry for offline use,
   e.g. a serving Mac pointing at itself or travelblock on the road).
@@ -38,10 +41,16 @@ variables:
   router_url:
     type: string
     default: https://llmrouter.lab.gn.al
-  # Startup model in both CLIs (any catalogue row).
+  # Startup model in every CLI (any catalogue row).
   default_model:
     type: string
     default: auto
+  # OpenCode's small_model (titles, summaries) — the counterpart of Claude
+  # Code's ANTHROPIC_DEFAULT_HAIKU_MODEL, which the claude template pins to
+  # deepseek-flash as well.
+  small_model:
+    type: string
+    default: deepseek-flash
   # Optional DIRECT llama-server entries (bypass the router) for offline use.
   # Empty local_host renders none.
   local_host:
@@ -85,3 +94,14 @@ targets:
     destination: ~/.qwen/.env
     mode: "0600"
     validate: [utf8, nonempty]
+
+  # OpenCode reads ~/.config/opencode/opencode.json; it keeps session state
+  # elsewhere, so the owned keys are never rewritten by the client itself.
+  - id: opencode.config
+    operation: json_merge
+    source: bundles/llm.client/files/opencode.json.j2
+    destination: ~/.config/opencode/opencode.json
+    template: jinja2
+    # No "$schema" key: seshat owns pointers allow [A-Za-z0-9_.-] only and
+    # OpenCode does not need it (editor hint only).
+    owns: [/autoupdate, /share, /model, /small_model, /provider]

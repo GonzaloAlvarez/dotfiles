@@ -1,0 +1,57 @@
+{%- set router = vars.router_url ~ "/v1" -%}
+{#- id, display name, context, max output, reasoning, image input — mirrors
+    cn-llmrouter/config.yaml and the qwen/claude templates in this bundle.
+    tool_call is true for every row (the router rows all take tools). -#}
+{%- set rows = [
+  ["auto",                   "Auto (local Qwen easy turns, DeepSeek hard ones)", 32768,   8192,  false, false],
+  ["auto-claude",            "Auto (hard turns on Claude Sonnet)",               32768,   8192,  false, false],
+  ["deepseek-flash",         "DeepSeek 4.1 Flash (Fireworks)",                   1000000, 32768, true,  false],
+  ["qwen-local",             "Qwen3.8-27B (local pool)",                         32768,   8192,  false, false],
+  ["qwen-think",             "Qwen3.8-27B thinking (local pool)",                32768,   8192,  true,  false],
+  ["qwen-klaus",             "Qwen3.8-27B on klaus",                             65536,   8192,  false, false],
+  ["qwen-klaus-think",       "Qwen3.8-27B thinking on klaus",                    65536,   8192,  true,  false],
+  ["inkling-klaus",          "Inkling 2 Mini on klaus (vision)",                 65536,   8192,  true,  true],
+  ["qwen-minerva",           "Qwen3.8-27B on minerva",                           32768,   8192,  false, false],
+  ["qwen-minerva-think",     "Qwen3.8-27B thinking on minerva",                  32768,   8192,  true,  false],
+  ["qwen-travelblock",       "Qwen3.8-27B on travelblock",                       32768,   8192,  false, false],
+  ["qwen-travelblock-think", "Qwen3.8-27B thinking on travelblock",              32768,   8192,  true,  false],
+  ["claude-opus",            "Claude Opus (Bedrock)",                            200000,  32000, true,  true],
+  ["claude-sonnet",          "Claude Sonnet (Bedrock)",                          200000,  32000, true,  true],
+  ["claude-haiku",           "Claude Haiku (Bedrock)",                           200000,  8192,  false, true],
+  ["gpt-5.5",                "GPT-5.5 (Bedrock)",                                200000,  32000, true,  false],
+  ["nova-2-lite",            "Nova 2 Lite (Amazon)",                             1000000, 65536, true,  false],
+  ["nova-pro",               "Nova Pro (Amazon)",                                300000,  10000, false, true],
+  ["nova-lite",              "Nova Lite (Amazon)",                               300000,  10000, false, true],
+  ["nova-micro",             "Nova Micro (Amazon)",                              128000,  10000, false, false]
+] -%}
+{%- macro model(id, name, ctx, out, reasoning, images) -%}
+        {{ id | tojson }}: { "name": {{ name | tojson }}, "tool_call": true, "reasoning": {{ reasoning | tojson }}, "attachment": {{ images | tojson }}, "limit": { "context": {{ ctx }}, "output": {{ out }} } }
+{%- endmacro -%}
+{
+  "autoupdate": false,
+  "share": "disabled",
+  "model": {{ ("llmrouter/" ~ vars.default_model) | tojson }},
+  "small_model": {{ ("llmrouter/" ~ vars.small_model) | tojson }},
+  "provider": {
+    "llmrouter": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Homelab LLM router",
+      "options": { "baseURL": {{ router | tojson }}, "apiKey": "open" },
+      "models": {
+{%- for row in rows %}
+{{ model(row[0], row[1], row[2], row[3], row[4], row[5]) }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+      }
+    }{% if vars.local_host %},
+    "local": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": {{ ("llama-server (direct " ~ vars.local_host ~ ")") | tojson }},
+      "options": { "baseURL": "http://{{ vars.local_host }}:{{ vars.local_port }}/v1", "apiKey": "local" },
+      "models": {
+{{ model(vars.local_alias, vars.local_alias ~ " (direct)", vars.local_ctx, 8192, false, false) }}{% if vars.local_alias2 %},
+{{ model(vars.local_alias2, vars.local_alias2 ~ " (direct)", vars.local_ctx, 8192, true, false) }}{% endif %}{% if vars.local_alias3 %},
+{{ model(vars.local_alias3, vars.local_alias3 ~ " (direct)", vars.local_ctx, 8192, true, true) }}{% endif %}
+      }
+    }{% endif %}
+  }
+}

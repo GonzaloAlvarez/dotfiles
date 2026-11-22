@@ -322,6 +322,7 @@ def test_real_llm_client_opencode_template(tmp_path):
     r = doc["provider"]["llmrouter"]
     assert r["npm"] == "@ai-sdk/openai-compatible"
     assert r["options"]["baseURL"] == "https://llmrouter.lab.gn.al/v1"
+    assert r["options"]["headerTimeout"] == 1800000 and r["options"]["chunkTimeout"] == 1800000
     models = r["models"]
     for row in ("auto", "deepseek-flash", "qwen-klaus", "inkling-klaus", "claude-sonnet", "nova-micro"):
         assert models[row]["tool_call"] is True
@@ -336,5 +337,6 @@ def test_real_llm_client_opencode_template(tmp_path):
     assert direct["model"] == "llmrouter/qwen-klaus"
     local = direct["provider"]["local"]
     assert local["options"]["baseURL"] == "http://127.0.0.1:8080/v1"
+    assert local["options"]["headerTimeout"] == 1800000
     assert list(local["models"]) == ["qwen3.8-27b-code", "qwen3.8-27b-think", "inkling-2-mini"]
     assert local["models"]["qwen3.8-27b-code"]["limit"]["context"] == 32768

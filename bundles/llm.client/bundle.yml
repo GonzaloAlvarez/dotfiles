@@ -51,6 +51,13 @@ variables:
   small_model:
     type: string
     default: deepseek-flash
+  # OpenCode headerTimeout/chunkTimeout (ms) for the router and direct
+  # providers. Default 30 min: a local box has one llama-server slot, so a
+  # request queued behind another session waits for that whole generation
+  # before it sees headers; OpenCode's 5-min default timed out on klaus.
+  local_timeout_ms:
+    type: string
+    default: "1800000"
   # Optional DIRECT llama-server entries (bypass the router) for offline use.
   # Empty local_host renders none.
   local_host:

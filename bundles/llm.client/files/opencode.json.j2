@@ -1,4 +1,8 @@
 {%- set router = vars.router_url ~ "/v1" -%}
+{#- Timeouts: OpenCode waits 5 min for response headers and 15 min between
+    chunks by default. A local llama-server has ONE slot per box, so a request
+    queued behind another session's long generation gets no headers for as long
+    as that generation runs — raise both to local_timeout_ms (provider-wide). -#}
 {#- id, display name, context, max output, reasoning, image input — mirrors
     cn-llmrouter/config.yaml and the qwen/claude templates in this bundle.
     tool_call is true for every row (the router rows all take tools). -#}
@@ -36,7 +40,7 @@
     "llmrouter": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Homelab LLM router",
-      "options": { "baseURL": {{ router | tojson }}, "apiKey": "open" },
+      "options": { "baseURL": {{ router | tojson }}, "apiKey": "open", "headerTimeout": {{ vars.local_timeout_ms }}, "chunkTimeout": {{ vars.local_timeout_ms }} },
       "models": {
 {%- for row in rows %}
 {{ model(row[0], row[1], row[2], row[3], row[4], row[5]) }}{% if not loop.last %},{% endif %}
@@ -46,7 +50,7 @@
     "local": {
       "npm": "@ai-sdk/openai-compatible",
       "name": {{ ("llama-server (direct " ~ vars.local_host ~ ")") | tojson }},
-      "options": { "baseURL": "http://{{ vars.local_host }}:{{ vars.local_port }}/v1", "apiKey": "local" },
+      "options": { "baseURL": "http://{{ vars.local_host }}:{{ vars.local_port }}/v1", "apiKey": "local", "headerTimeout": {{ vars.local_timeout_ms }}, "chunkTimeout": {{ vars.local_timeout_ms }} },
       "models": {
 {{ model(vars.local_alias, vars.local_alias ~ " (direct)", vars.local_ctx, 8192, false, false) }}{% if vars.local_alias2 %},
 {{ model(vars.local_alias2, vars.local_alias2 ~ " (direct)", vars.local_ctx, 8192, true, false) }}{% endif %}{% if vars.local_alias3 %},

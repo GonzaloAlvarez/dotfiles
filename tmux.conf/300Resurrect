@@ -7,8 +7,12 @@
 # a reboot — only resurrect's safe default list is relaunched (vi/vim/nvim,
 # emacs, man, less, more, tail, top, htop, irssi, weechat, mutt). Manual
 # control: prefix + Ctrl-s saves, prefix + Ctrl-r restores. Saves live in
-# ~/.tmux/resurrect (`last` -> newest). Both plugins are git_tree targets of
-# the default bundle (bundles/default.yml), not TPM.
+# ~/.local/share/tmux/resurrect (`last` -> newest; resurrect only uses
+# ~/.tmux/resurrect when that directory already exists). continuum stands
+# down — no auto-save, no auto-restore — while a second tmux server (-L/-S)
+# of this user is running, so keep ad-hoc work on the default server. Both
+# plugins are git_tree targets of the default bundle (bundles/default.yml),
+# not TPM.
 set -g @resurrect-capture-pane-contents 'on'
 set -g @continuum-restore 'on'
 run-shell ~/.tmux/plugins/tmux-resurrect/resurrect.tmux

@@ -47,8 +47,10 @@ origins (no network).
   It also clones two third-party tmux plugins as `git_tree` targets (`tmux.resurrect`,
   `tmux.continuum` → `~/.tmux/plugins/`), loaded by `tmux.conf/300Resurrect` with
   `run-shell` — no TPM. Together they make tmux sessions survive reboots: layout, cwd and
-  scrollback are saved every 15 min (and on `prefix + Ctrl-s`) to `~/.tmux/resurrect/`, and
-  restored automatically when a fresh server starts. Running processes are not resumed (only
+  scrollback are saved every 15 min (and on `prefix + Ctrl-s`) to
+  `~/.local/share/tmux/resurrect/` (XDG; `~/.tmux/resurrect` only if it pre-exists), and
+  restored automatically when a fresh server starts. continuum skips auto-save and auto-restore
+  while a second tmux server (`-L`/`-S`) is running. Running processes are not resumed (only
   resurrect's safe default list — vim/less/man/top…). Both upstreams track `master` unpinned,
   like `vim.tree`/`nvim.tree`; `seshat` fast-forwards them on every `./setup`.
 - `bundles/<bundle-id>/bundle.yml` + `files/` — optional bundles, installed deliberately:

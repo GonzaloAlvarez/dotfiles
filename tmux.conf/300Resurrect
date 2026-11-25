@@ -1,0 +1,15 @@
+
+# Survive reboots. tmux-resurrect saves every session, window and pane
+# (layout, cwd, zoom, focus) plus each pane's scrollback; tmux-continuum
+# re-saves every 15 minutes and restores the newest save the moment a fresh
+# tmux server starts, so `tmx` after a reboot brings the shells back in
+# their directories. Processes are not resumed — nothing can do that across
+# a reboot — only resurrect's safe default list is relaunched (vi/vim/nvim,
+# emacs, man, less, more, tail, top, htop, irssi, weechat, mutt). Manual
+# control: prefix + Ctrl-s saves, prefix + Ctrl-r restores. Saves live in
+# ~/.tmux/resurrect (`last` -> newest). Both plugins are git_tree targets of
+# the default bundle (bundles/default.yml), not TPM.
+set -g @resurrect-capture-pane-contents 'on'
+set -g @continuum-restore 'on'
+run-shell ~/.tmux/plugins/tmux-resurrect/resurrect.tmux
+run-shell ~/.tmux/plugins/tmux-continuum/continuum.tmux

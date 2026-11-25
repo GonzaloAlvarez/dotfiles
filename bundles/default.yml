@@ -115,6 +115,16 @@ targets:
     url: https://github.com/GonzaloAlvarez/nvim
     destination: ~/.config/nvim
 
+  - id: tmux.resurrect
+    operation: git_tree
+    url: https://github.com/tmux-plugins/tmux-resurrect
+    destination: ~/.tmux/plugins/tmux-resurrect
+
+  - id: tmux.continuum
+    operation: git_tree
+    url: https://github.com/tmux-plugins/tmux-continuum
+    destination: ~/.tmux/plugins/tmux-continuum
+
   - id: seshat.bin
     operation: link
     target: "repo:seshat"

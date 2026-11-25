@@ -44,6 +44,13 @@ origins (no network).
 - `bundles/default.yml` — universal baseline, installed automatically. Sources reference the
   existing top-level payload directories (`bashrc/`, `screenrc/`, `tmux.conf/`, `zshenv/`,
   `ideavimrc/`, `aider/`, `vscode/`, `claude/`, `iterm/`, `herdr/`).
+  It also clones two third-party tmux plugins as `git_tree` targets (`tmux.resurrect`,
+  `tmux.continuum` → `~/.tmux/plugins/`), loaded by `tmux.conf/300Resurrect` with
+  `run-shell` — no TPM. Together they make tmux sessions survive reboots: layout, cwd and
+  scrollback are saved every 15 min (and on `prefix + Ctrl-s`) to `~/.tmux/resurrect/`, and
+  restored automatically when a fresh server starts. Running processes are not resumed (only
+  resurrect's safe default list — vim/less/man/top…). Both upstreams track `master` unpinned,
+  like `vim.tree`/`nvim.tree`; `seshat` fast-forwards them on every `./setup`.
 - `bundles/<bundle-id>/bundle.yml` + `files/` — optional bundles, installed deliberately:
   `llm.client` points Claude Code (`~/.claude/settings.json#/env` + `#/modelPicker`),
   qwen-code (`~/.qwen/settings.json` + `~/.qwen/.env`) and OpenCode

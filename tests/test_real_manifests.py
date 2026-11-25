@@ -48,6 +48,8 @@ def test_real_default_target_coverage():
         "claude.settings.statusline",
         "vim.tree",
         "nvim.tree",
+        "tmux.resurrect",
+        "tmux.continuum",
         "seshat.bin",
         "herdr.config",
         "herdr.move_pane",

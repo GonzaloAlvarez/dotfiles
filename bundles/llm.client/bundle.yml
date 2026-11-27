@@ -5,7 +5,7 @@ description: >
   (cn-llmrouter on kaiser, https://llmrouter.lab.gn.al): one URL on the
   LAN and on the tailnet, the model catalogue lives in the router, and
   /model in any of the CLIs picks a row (auto, deepseek-flash, claude-*,
-  qwen-local, qwen-<box>, inkling-<box>, gpt-5.5, nova-*). The OpenCode
+  qwen-local, qwen-<box>, inkling-<box>, gpt-5.5, nova-*, gemini-hydrogen). The OpenCode
   config (~/.config/opencode/opencode.json, provider "llmrouter") is
   rendered on every machine like the herdr config: inert until gear
   com/opencode is installed (`opencode --version`). Replaces llm.claude.bedrock (Bedrock
